@@ -1,0 +1,4 @@
+.github
+.circleci
+appveyor.yml
+test/
