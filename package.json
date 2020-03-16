@@ -1,0 +1,41 @@
+{
+  "name": "snyk-berkeleydb-parser",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "jest",
+    "build": "tsc",
+    "debug": "tsc-watch --project tsconfig.json --onSuccess 'node --inspect --debug-brk .'",
+    "build-watch": "tsc -w",
+    "prepare": "npm run build"
+  },
+  "types": "./dist/types.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snyk/snyk-berkeleydb-parser.git"
+  },
+  "author": "snyk.io",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=6"
+  },
+  "files": [
+    "bin",
+    "dist"
+  ],
+  "homepage": "https://github.com/snyk/snyk-berkeleydb-parser#readme",
+  "dependencies": {
+    "binary-parser": "^1.5.0",
+    "tslib": "^1.10.0"
+  },
+  "devDependencies": {
+    "@types/binary-parser": "^1.5.0",
+    "@types/jest": "^23.3.14",
+    "@types/node": "^6.14.4",
+    "jest": "^23.6.0",
+    "ts-jest": "^23.10.5",
+    "ts-node": "7.0.0",
+    "tsc-watch": "^4.2.3",
+    "typescript": "^3.7.3"
+  }
+}

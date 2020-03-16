@@ -1,0 +1,7 @@
+node_modules
+npm-debug.log
+# output
+dist
+.DS_Store
+*.log
+.idea
