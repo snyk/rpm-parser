@@ -4,6 +4,9 @@ import {
   DatabaseMetadata,
   HashMetadata,
   LogSequenceNumber,
+  DatabaseMagicNumber,
+  DatabasePageType,
+  MINIMUM_SUPPORTED_DB_VERSION,
   DATABASE_METADATA_SIZE,
   LOG_SEQUENCE_NUMBER_SIZE,
   DB_IV_BYTES,
@@ -51,6 +54,17 @@ export function bufferToHashMetadata(data: Buffer): HashMetadata {
   const dbResult: DatabaseMetadata = Object.assign(dbResultWithoutLsn, {
     lsn: lsnResult,
   });
+
+  if (
+    dbResult.magic !== DatabaseMagicNumber.DB_HASH ||
+    dbResult.type !== DatabasePageType.P_HASHMETA
+  ) {
+    throw new Error('Unsupported database type');
+  }
+
+  if (dbResult.version < MINIMUM_SUPPORTED_DB_VERSION) {
+    throw new Error('Unsupported database version');
+  }
 
   const hashParser = new Parser()
     .endianess('little')
