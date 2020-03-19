@@ -8,6 +8,7 @@ export const MINIMUM_SUPPORTED_DB_VERSION = 7;
 
 export const DB_IV_BYTES = 16;
 export const DB_MAC_KEY_BYTES = 20;
+export const HASH_INDEX_ENTRY_BYTES = 2;
 
 export enum DatabaseMagicNumber {
   DB_BTREEE = 0x053162,
@@ -82,7 +83,7 @@ export interface HashMetadata {
  * + 8 for the LogSequenceNumber
  * + 20 for the metadata
  */
-export const DATABASE_PAGE_SIZE = 26;
+export const DATABASE_PAGE_HEADER_SIZE = 26;
 
 export interface DatabasePage {
   lsn: LogSequenceNumber;
@@ -93,6 +94,15 @@ export interface DatabasePage {
   hf_offset: Uint16;
   level: Uint8;
   type: Uint8 | DatabasePageType;
+}
+
+export interface HashIndexEntry {
+  key: Uint16;
+  value: Uint16;
+}
+
+export interface HashIndex {
+  entries: HashIndexEntry[];
 }
 
 export interface PageCryptography {
@@ -131,9 +141,13 @@ export enum HashPageType {
  * Thus, by keeping track of the offset in the element, we can do both
  * backward and forward traversal.
  */
+
+export const HASH_KEY_DATA_SIZE = 5;
+
 export interface HashKeyDataItem {
   type: Uint8 | HashPageType;
-  data: Uint8[]; // variable length key/data item
+  // data: Uint8[]; // Variable length key/data item.
+  data: Uint32; // This is actually 4 bytes, not variable!
 }
 
 export interface HashKeyDuplicateItem {
@@ -165,6 +179,8 @@ export interface HashOverflowDuplicateItem {
  *	The amount of overflow data stored on each page is stored in the
  *	hf_offset field.
  */
+export const HASH_OVERFLOW_SIZE = 12;
+
 export interface HashOverflowItem extends HashOverflowDuplicateItem {
   tlen: Uint32; // Total length of the overflow item
 }
