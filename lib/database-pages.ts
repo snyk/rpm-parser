@@ -1,10 +1,14 @@
+import { Parser } from 'binary-parser';
+
 import {
   DatabasePage,
   LogSequenceNumber,
+  HashIndex,
   LOG_SEQUENCE_NUMBER_SIZE,
+  DATABASE_PAGE_HEADER_SIZE,
+  HASH_INDEX_ENTRY_BYTES,
   nameof,
 } from './types';
-import { Parser } from 'binary-parser';
 
 export function bufferToDatabasePage(data: Buffer): DatabasePage {
   const logSequenceNumber = data.slice(0, LOG_SEQUENCE_NUMBER_SIZE);
@@ -36,4 +40,31 @@ export function bufferToDatabasePage(data: Buffer): DatabasePage {
   });
 
   return pageResult;
+}
+
+export function bufferToHashIndex(data: Buffer, entries: number): HashIndex {
+  // Hash table entries are always stored in pairs of 2.
+  if (entries % HASH_INDEX_ENTRY_BYTES !== 0) {
+    throw new Error('The number of entries must be a multiple of 2');
+  }
+
+  const indexSize = entries * HASH_INDEX_ENTRY_BYTES;
+  const index = data.slice(DATABASE_PAGE_HEADER_SIZE, indexSize);
+
+  const hashIndex: HashIndex = { entries: [] };
+
+  // We process entries in pairs
+  for (let i = 0; i < indexSize; i += HASH_INDEX_ENTRY_BYTES * 2) {
+    const key = index.slice(i, i + 2);
+    const value = index.slice(i + 2, i + 4);
+
+    if (key.length !== 0 && value.length !== 0) {
+      hashIndex.entries.push({
+        key: key.readUInt16LE(0),
+        value: value.readUInt16LE(0),
+      });
+    }
+  }
+
+  return hashIndex;
 }
