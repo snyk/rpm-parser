@@ -1,25 +1,23 @@
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
-import { resolve as resolvePath } from 'path';
-
 import { bufferToHashMetadata } from './database-metadata';
 import { DatabasePageType, HashPageType, HASH_METADATA_SIZE } from './types';
 import { bufferToDatabasePage, bufferToHashIndex } from './database-pages';
 import { bufferToKeyDataContent, bufferToHashValueContent } from './hash-pages';
 
-// added for testing!
-setImmediate(() => {
-  const berkeleydb = readFileSync(
-    resolvePath(__dirname, '..', 'test/fixtures/Packages'),
-  );
-  const metadata = berkeleydb.slice(0, HASH_METADATA_SIZE);
+import { headerImport } from './rpm/header';
+import { getNEVRA } from './rpm/extensions';
+
+export function getPackages(data: Buffer): string {
+  const metadata = data.slice(0, HASH_METADATA_SIZE);
 
   const hashMetadata = bufferToHashMetadata(metadata);
   const dbMetadata = hashMetadata.dbmeta;
 
   const result: Array<{ key: Buffer; value: Buffer }> = [];
 
+  const output: string[] = [];
+
   for (let pgno = 1; pgno < dbMetadata.last_pgno; pgno++) {
-    const page = berkeleydb.slice(
+    const page = data.slice(
       pgno * dbMetadata.pagesize,
       pgno * dbMetadata.pagesize + dbMetadata.pagesize,
     );
@@ -47,7 +45,7 @@ setImmediate(() => {
 
       const keyContent = bufferToKeyDataContent(page, hashPage.key);
       const valueContent = bufferToHashValueContent(
-        berkeleydb,
+        data,
         page,
         hashPage.value,
         dbMetadata.pagesize,
@@ -57,17 +55,18 @@ setImmediate(() => {
         key: keyContent,
         value: valueContent,
       });
+
+      const entries = headerImport(valueContent);
+      const packageInfo = getNEVRA(entries);
+
+      const entry =
+        packageInfo.epoch === undefined
+          ? `${packageInfo.name}\t${packageInfo.version}-${packageInfo.release}\t${packageInfo.size}`
+          // tslint:disable-next-line: max-line-length
+          : `${packageInfo.name}\t${packageInfo.epoch}:${packageInfo.version}-${packageInfo.release}\t${packageInfo.size}`;
+      output.push(entry);
     }
   }
 
-  for (let i = 0; i < result.length; i++) {
-    const entry = result[i];
-    if (!existsSync('data')) {
-      mkdirSync('data');
-    }
-
-    // Ignore the keys, they are just some indexes that have no meaning in RPM
-    // writeFileSync(`data/key-${i}.bin`, entry.key);
-    writeFileSync(`data/value-${i}.bin`, entry.value);
-  }
-});
+  return output.join('\n');
+}
