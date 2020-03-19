@@ -6,6 +6,9 @@ import { DatabasePageType, HashPageType, HASH_METADATA_SIZE } from './types';
 import { bufferToDatabasePage, bufferToHashIndex } from './database-pages';
 import { bufferToKeyDataContent, bufferToHashValueContent } from './hash-pages';
 
+import { headerImport } from './rpm/header';
+import { getNEVRA } from './rpm/extensions';
+
 // added for testing!
 setImmediate(() => {
   const berkeleydb = readFileSync(
@@ -57,6 +60,9 @@ setImmediate(() => {
         key: keyContent,
         value: valueContent,
       });
+
+      const entries = headerImport(valueContent);
+      console.log(getNEVRA(entries));
     }
   }
 
