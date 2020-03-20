@@ -132,7 +132,7 @@ workflows:
                 - master
       - release:
           name: Release to GitHub
-          context: nodejs-app-release
+          context: nodejs-lib-release
           requires:
             - Install with devDependencies
             - Test
