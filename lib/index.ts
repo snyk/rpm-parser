@@ -24,8 +24,9 @@ export function getPackages(data: Buffer): string {
 
     const pageMetadata = bufferToDatabasePage(page);
 
+    // Look only for HASH pages, we will traverse them in subsequent steps
     if (pageMetadata.type !== DatabasePageType.P_HASH) {
-      break;
+      continue;
     }
 
     const hashIndex = bufferToHashIndex(page, pageMetadata.entries);
