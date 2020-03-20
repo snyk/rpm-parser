@@ -21,14 +21,14 @@ describe('testing various RPM databases', () => {
 
   for (const path of fixturePaths) {
     // Create a test run for every fixture
-    test(path, () => {
+    test(path, async () => {
       const fixture = fixturePath(`fixtures/${path}`);
       const output = fixturePath(`outputs/${path}`);
 
       const rpmDb = readFileSync(fixture);
       const expectedOutput = readFileSync(output, 'utf-8');
 
-      const parserOutput = getPackages(rpmDb);
+      const parserOutput = await getPackages(rpmDb);
 
       const expectedEntries = expectedOutput
         .trim()

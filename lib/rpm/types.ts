@@ -10,7 +10,6 @@ export interface EntryInfo {
 export interface IndexEntry {
   info: EntryInfo; // Description of tag data.
   length: number; // Int32, No. bytes of data.
-  ridlen: number; // Int32, No. bytes of data in region.
   data: Buffer;
 }
 

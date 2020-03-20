@@ -1,61 +1,50 @@
-import { bufferToHashMetadata } from './berkeleydb/database-metadata';
-import { DatabasePageType, HashPageType, HASH_METADATA_SIZE } from './types';
-import { bufferToDatabasePage, bufferToHashIndex } from './berkeleydb/database-pages';
-import { bufferToKeyDataContent, bufferToHashValueContent } from './berkeleydb/hash-pages';
+import { eventLoopSpinner } from 'event-loop-spinner';
+
+import {
+  DatabasePageType,
+  HashPageType,
+  DATABASE_PAGE_HEADER_SIZE,
+} from './types';
+import { bufferToHashIndexValues } from './berkeleydb/database-pages';
+import { bufferToHashValueContent } from './berkeleydb/hash-pages';
 
 import { headerImport } from './rpm/header';
 import { getNEVRA } from './rpm/extensions';
 
-export function getPackages(data: Buffer): string {
-  const metadata = data.slice(0, HASH_METADATA_SIZE);
-
-  const hashMetadata = bufferToHashMetadata(metadata);
-  const dbMetadata = hashMetadata.dbmeta;
-
-  const result: Array<{ key: Buffer; value: Buffer }> = [];
+export async function getPackages(data: Buffer): Promise<string> {
+  const pagesize = data.readUInt32LE(20);
+  const last_pgno = data.readUInt32LE(32);
 
   const output: string[] = [];
 
-  for (let pgno = 1; pgno < dbMetadata.last_pgno; pgno++) {
-    const page = data.slice(
-      pgno * dbMetadata.pagesize,
-      pgno * dbMetadata.pagesize + dbMetadata.pagesize,
-    );
+  for (let pgno = 1; pgno < last_pgno; pgno++) {
+    const pageStart = pgno * pagesize;
+    const pageEnd = pgno * pagesize + pagesize;
 
-    const pageMetadata = bufferToDatabasePage(page);
-
+    const pageType = data[pageStart + DATABASE_PAGE_HEADER_SIZE - 1];
     // Look only for HASH pages, we will traverse them in subsequent steps
-    if (pageMetadata.type !== DatabasePageType.P_HASH) {
+    if (pageType !== DatabasePageType.P_HASH) {
       continue;
     }
 
-    const hashIndex = bufferToHashIndex(page, pageMetadata.entries);
+    const page = data.slice(pageStart, pageEnd);
+    const entries = page.readUInt16LE(20);
+    const hashIndex = bufferToHashIndexValues(page, entries);
 
-    for (const hashPage of hashIndex.entries) {
-      const keyPageType = page[hashPage.key];
-      if (keyPageType !== HashPageType.H_KEYDATA) {
-        throw new Error('Unexpected key type');
-      }
-
-      const valuePageType = page[hashPage.value];
+    for (const hashPage of hashIndex) {
+      const valuePageType = page[hashPage];
       if (valuePageType !== HashPageType.H_OFFPAGE) {
         // The first page will have a key and value of type H_KEYDATA,
         // the value means nothing to us, so we can just skip it.
         continue;
       }
 
-      const keyContent = bufferToKeyDataContent(page, hashPage.key);
       const valueContent = bufferToHashValueContent(
         data,
         page,
-        hashPage.value,
-        dbMetadata.pagesize,
+        hashPage,
+        pagesize,
       );
-
-      result.push({
-        key: keyContent,
-        value: valueContent,
-      });
 
       const entries = headerImport(valueContent);
       const packageInfo = getNEVRA(entries);
@@ -63,9 +52,13 @@ export function getPackages(data: Buffer): string {
       const entry =
         packageInfo.epoch === undefined || packageInfo.epoch === 0
           ? `${packageInfo.name}\t${packageInfo.version}-${packageInfo.release}\t${packageInfo.size}`
-          // tslint:disable-next-line: max-line-length
-          : `${packageInfo.name}\t${packageInfo.epoch}:${packageInfo.version}-${packageInfo.release}\t${packageInfo.size}`;
+          : // tslint:disable-next-line: max-line-length
+            `${packageInfo.name}\t${packageInfo.epoch}:${packageInfo.version}-${packageInfo.release}\t${packageInfo.size}`;
       output.push(entry);
+    }
+
+    if (eventLoopSpinner.isStarving()) {
+      await eventLoopSpinner.spin();
     }
   }
 
