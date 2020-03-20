@@ -1,8 +1,8 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  collectCoverage: false, // Enabled by running `yarn run test:coverage`
+  verbose: true,
   collectCoverageFrom: [ 'lib/**/*.ts' ],
   coverageReporters: ['text-summary', 'html'],
-  testPathIgnorePatterns: ['/lib/', '/node_modules/'],
+  testPathIgnorePatterns: ['/node_modules/'],
 };

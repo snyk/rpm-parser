@@ -44,16 +44,3 @@ export enum RpmType {
   STRING_ARRAY = 8,
   I18NSTRING = 9,
 }
-
-export function isPackageInfo(
-  obj: Partial<PackageInfo> | undefined,
-): obj is PackageInfo {
-  return (
-    obj !== undefined &&
-    obj.name !== undefined &&
-    obj.arch !== undefined &&
-    obj.release !== undefined &&
-    obj.size !== undefined &&
-    obj.version !== undefined
-  );
-}
