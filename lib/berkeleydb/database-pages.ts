@@ -49,7 +49,10 @@ export function bufferToHashIndex(data: Buffer, entries: number): HashIndex {
   }
 
   const indexSize = entries * HASH_INDEX_ENTRY_BYTES;
-  const index = data.slice(DATABASE_PAGE_HEADER_SIZE, indexSize);
+  const index = data.slice(
+    DATABASE_PAGE_HEADER_SIZE,
+    DATABASE_PAGE_HEADER_SIZE + indexSize,
+  );
 
   const hashIndex: HashIndex = { entries: [] };
 
