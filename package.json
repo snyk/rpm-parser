@@ -1,5 +1,5 @@
 {
-  "name": "snyk-berkeleydb-parser",
+  "name": "rpm-parser",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -12,7 +12,7 @@
   "types": "./dist/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/snyk/snyk-berkeleydb-parser.git"
+    "url": "https://github.com/snyk/rpm-parser.git"
   },
   "author": "snyk.io",
   "license": "Apache-2.0",
@@ -23,7 +23,7 @@
     "bin",
     "dist"
   ],
-  "homepage": "https://github.com/snyk/snyk-berkeleydb-parser#readme",
+  "homepage": "https://github.com/snyk/rpm-parser#readme",
   "dependencies": {
     "binary-parser": "^1.5.0",
     "tslib": "^1.10.0"
