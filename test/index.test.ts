@@ -20,7 +20,8 @@ describe('testing various RPM databases', () => {
   ];
 
   for (const path of fixturePaths) {
-    it(path, () => {
+    // Create a test run for every fixture
+    test(path, () => {
       const fixture = fixturePath(`fixtures/${path}`);
       const output = fixturePath(`outputs/${path}`);
 
@@ -37,6 +38,7 @@ describe('testing various RPM databases', () => {
         .trim()
         .split('\n')
         .sort();
+
       for (let j = 0; j < expectedEntries.length; j++) {
         const expectedEntry = expectedEntries[j];
         const parserEntry = parserEntries[j];
