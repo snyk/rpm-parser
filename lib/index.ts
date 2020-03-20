@@ -1,7 +1,7 @@
-import { bufferToHashMetadata } from './database-metadata';
+import { bufferToHashMetadata } from './berkeleydb/database-metadata';
 import { DatabasePageType, HashPageType, HASH_METADATA_SIZE } from './types';
-import { bufferToDatabasePage, bufferToHashIndex } from './database-pages';
-import { bufferToKeyDataContent, bufferToHashValueContent } from './hash-pages';
+import { bufferToDatabasePage, bufferToHashIndex } from './berkeleydb/database-pages';
+import { bufferToKeyDataContent, bufferToHashValueContent } from './berkeleydb/hash-pages';
 
 import { headerImport } from './rpm/header';
 import { getNEVRA } from './rpm/extensions';
