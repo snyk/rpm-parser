@@ -1,12 +1,11 @@
 import {
   IndexEntry,
   PackageInfo,
-  isPackageInfo,
   RpmTag,
   RpmType,
 } from './types';
 
-export function getNEVRA(entries: IndexEntry[]): PackageInfo {
+export function getNEVRA(entries: IndexEntry[]): Partial<PackageInfo> {
   const packageInfo: Partial<PackageInfo> = {};
   for (const entry of entries) {
     switch (entry.info.tag) {
@@ -65,10 +64,6 @@ export function getNEVRA(entries: IndexEntry[]): PackageInfo {
       default:
         continue;
     }
-  }
-
-  if (!isPackageInfo(packageInfo)) {
-    throw new Error('Could not construct package info from index entries');
   }
 
   return packageInfo;

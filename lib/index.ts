@@ -60,7 +60,7 @@ export function getPackages(data: Buffer): string {
       const packageInfo = getNEVRA(entries);
 
       const entry =
-        packageInfo.epoch === undefined
+        packageInfo.epoch === undefined || packageInfo.epoch === 0
           ? `${packageInfo.name}\t${packageInfo.version}-${packageInfo.release}\t${packageInfo.size}`
           // tslint:disable-next-line: max-line-length
           : `${packageInfo.name}\t${packageInfo.epoch}:${packageInfo.version}-${packageInfo.release}\t${packageInfo.size}`;
