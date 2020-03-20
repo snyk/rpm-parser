@@ -2,8 +2,8 @@
 
 ***
 
-[![Known Vulnerabilities](https://snyk.io/test/github/snyk/snyk-berkeleydb-parser/badge.svg)](https://snyk.io/test/github/snyk/snyk-berkeleydb-parser)
+[![Known Vulnerabilities](https://snyk.io/test/github/snyk/rpm-parser/badge.svg)](https://snyk.io/test/github/snyk/rpm-parser)
 
 Snyk helps you find, fix and monitor for known vulnerabilities in your dependencies, both on an ad hoc basis and as part of your CI (Build) system.
 
-## Snyk BerkeleyDB Parser
+## Snyk RPM Parser
