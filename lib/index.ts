@@ -1,3 +1,5 @@
+import { eventLoopSpinner } from 'event-loop-spinner';
+
 import {
   DatabasePageType,
   HashPageType,
@@ -9,7 +11,7 @@ import { bufferToHashValueContent } from './berkeleydb/hash-pages';
 import { headerImport } from './rpm/header';
 import { getNEVRA } from './rpm/extensions';
 
-export function getPackages(data: Buffer): string {
+export async function getPackages(data: Buffer): Promise<string> {
   const pagesize = data.readUInt32LE(20);
   const last_pgno = data.readUInt32LE(32);
 
@@ -53,6 +55,10 @@ export function getPackages(data: Buffer): string {
           : // tslint:disable-next-line: max-line-length
             `${packageInfo.name}\t${packageInfo.epoch}:${packageInfo.version}-${packageInfo.release}\t${packageInfo.size}`;
       output.push(entry);
+    }
+
+    if (eventLoopSpinner.isStarving()) {
+      await eventLoopSpinner.spin();
     }
   }
 
