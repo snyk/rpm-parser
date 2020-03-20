@@ -8,7 +8,7 @@ import {
   DATABASE_PAGE_HEADER_SIZE,
   HASH_INDEX_ENTRY_BYTES,
   nameof,
-} from './types';
+} from '../types';
 
 export function bufferToDatabasePage(data: Buffer): DatabasePage {
   const logSequenceNumber = data.slice(0, LOG_SEQUENCE_NUMBER_SIZE);

@@ -8,7 +8,7 @@ import {
   HASH_OVERFLOW_SIZE,
   DATABASE_PAGE_HEADER_SIZE,
   nameof,
-} from './types';
+} from '../types';
 import { bufferToDatabasePage } from './database-pages';
 
 export function bufferToKeyDataContent(

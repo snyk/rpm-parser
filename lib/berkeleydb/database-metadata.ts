@@ -12,7 +12,7 @@ import {
   DB_IV_BYTES,
   DB_MAC_KEY_BYTES,
   nameof,
-} from './types';
+} from '../types';
 
 export function bufferToHashMetadata(data: Buffer): HashMetadata {
   const logSequenceNumber = data.slice(0, LOG_SEQUENCE_NUMBER_SIZE);
