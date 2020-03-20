@@ -5,6 +5,11 @@ import {
   RpmType,
 } from './types';
 
+function extractString(data: Buffer) {
+  const contentEnd = data.indexOf(0);
+  return data.slice(0, contentEnd).toString('utf-8');
+}
+
 export function getNEVRA(entries: IndexEntry[]): Partial<PackageInfo> {
   const packageInfo: Partial<PackageInfo> = {};
   for (const entry of entries) {
@@ -13,52 +18,42 @@ export function getNEVRA(entries: IndexEntry[]): Partial<PackageInfo> {
         if (entry.info.type !== RpmType.STRING) {
           throw new Error('Unexpected type for name tag');
         }
-        const nameEnd = entry.data.indexOf(0);
-        const name = entry.data.slice(0, nameEnd).toString('utf-8');
-        packageInfo.name = name;
+        packageInfo.name = extractString(entry.data);
         break;
 
       case RpmTag.RELEASE:
         if (entry.info.type !== RpmType.STRING) {
           throw new Error('Unexpected type for name tag');
         }
-        const releaseEnd = entry.data.indexOf(0);
-        const release = entry.data.slice(0, releaseEnd).toString('utf-8');
-        packageInfo.release = release;
+        packageInfo.release = extractString(entry.data);
         break;
 
       case RpmTag.ARCH:
         if (entry.info.type !== RpmType.STRING) {
           throw new Error('Unexpected type for name tag');
         }
-        const archEnd = entry.data.indexOf(0);
-        const arch = entry.data.slice(0, archEnd).toString();
-        packageInfo.arch = arch;
+        packageInfo.arch = extractString(entry.data);
         break;
 
       case RpmTag.EPOCH:
         if (entry.info.type !== RpmType.INT32) {
           throw new Error('Unexpected type for epoch tag');
         }
-        const epoch = entry.data.readInt32BE(0);
-        packageInfo.epoch = epoch;
+        packageInfo.epoch = entry.data.readInt32BE(0);
         break;
 
       case RpmTag.SIZE:
         if (entry.info.type !== RpmType.INT32) {
           throw new Error('Unexpected type for epoch tag');
         }
-        const size = entry.data.readInt32BE(0);
-        packageInfo.size = size;
+        packageInfo.size = entry.data.readInt32BE(0);
         break;
 
       case RpmTag.VERSION:
         if (entry.info.type !== RpmType.STRING) {
           throw new Error('Unexpected type for name tag');
         }
-        const versionEnd = entry.data.indexOf(0);
-        const version = entry.data.slice(0, versionEnd).toString('utf-8');
-        packageInfo.version = version;
+        packageInfo.version = extractString(entry.data);
         break;
 
       default:

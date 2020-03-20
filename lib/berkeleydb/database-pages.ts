@@ -1,48 +1,9 @@
-import { Parser } from 'binary-parser';
+import { DATABASE_PAGE_HEADER_SIZE, HASH_INDEX_ENTRY_BYTES } from '../types';
 
-import {
-  DatabasePage,
-  LogSequenceNumber,
-  HashIndex,
-  LOG_SEQUENCE_NUMBER_SIZE,
-  DATABASE_PAGE_HEADER_SIZE,
-  HASH_INDEX_ENTRY_BYTES,
-  nameof,
-} from '../types';
-
-export function bufferToDatabasePage(data: Buffer): DatabasePage {
-  const logSequenceNumber = data.slice(0, LOG_SEQUENCE_NUMBER_SIZE);
-  const pageMetadata = data.slice(LOG_SEQUENCE_NUMBER_SIZE, data.length);
-
-  // TODO: maybe extract into individual functions?
-  const lsnParser = new Parser()
-    .endianess('little')
-    .uint32(nameof<LogSequenceNumber>('file'))
-    .uint32(nameof<LogSequenceNumber>('offset'));
-  const lsnResult = lsnParser.parse(logSequenceNumber);
-
-  const pageParser = new Parser()
-    .endianess('little')
-    .uint32(nameof<DatabasePage>('pgno'))
-    .uint32(nameof<DatabasePage>('prev_pgno'))
-    .uint32(nameof<DatabasePage>('next_pgno'))
-    .uint16(nameof<DatabasePage>('entries'))
-    .uint16(nameof<DatabasePage>('hf_offset'))
-    .uint8(nameof<DatabasePage>('level'))
-    .uint8(nameof<DatabasePage>('type'));
-
-  const pageResultWithoutLsn: Omit<DatabasePage, 'lsn'> = pageParser.parse(
-    pageMetadata,
-  );
-
-  const pageResult: DatabasePage = Object.assign(pageResultWithoutLsn, {
-    lsn: lsnResult,
-  });
-
-  return pageResult;
-}
-
-export function bufferToHashIndex(data: Buffer, entries: number): HashIndex {
+export function bufferToHashIndexValues(
+  data: Buffer,
+  entries: number,
+): number[] {
   // Hash table entries are always stored in pairs of 2.
   if (entries % HASH_INDEX_ENTRY_BYTES !== 0) {
     throw new Error('The number of entries must be a multiple of 2');
@@ -54,20 +15,11 @@ export function bufferToHashIndex(data: Buffer, entries: number): HashIndex {
     DATABASE_PAGE_HEADER_SIZE + indexSize,
   );
 
-  const hashIndex: HashIndex = { entries: [] };
-
-  // We process entries in pairs
-  for (let i = 0; i < indexSize; i += HASH_INDEX_ENTRY_BYTES * 2) {
-    const key = index.slice(i, i + 2);
-    const value = index.slice(i + 2, i + 4);
-
-    if (key.length !== 0 && value.length !== 0) {
-      hashIndex.entries.push({
-        key: key.readUInt16LE(0),
-        value: value.readUInt16LE(0),
-      });
+  const values = index.reduce((values, _, byteno) => {
+    if ((byteno - 2) % 4 === 0) {
+      values[(byteno - 2) / 4] = index.readInt16LE(byteno);
     }
-  }
-
-  return hashIndex;
+    return values;
+  }, new Array<number>(entries));
+  return values;
 }
