@@ -1,57 +1,58 @@
-import {
-  HashPageType,
-  HASH_OVERFLOW_SIZE,
-  DATABASE_PAGE_HEADER_SIZE,
-} from '../types';
+import { DATABASE_PAGE_HEADER_SIZE, HashPageType } from './types';
 
+/**
+ * Traverse the data (overflow) pages and extract the data.
+ * The data may be spread over multiple pages, so for every page we need to:
+ * 1. Strip the page header of every page.
+ * 2. Collate with data collected so far.
+ * 3. Make sure to read the right data offset if we reach the last page.
+ * The pages are not in order, so we may have to jump all across the BerkeleyDB file.
+ * This is why we also need a Buffer to the database contents.
+ * @param berkeleydb The contents of the database.
+ * @param page Which page to start looking from. This should be an Overflow page.
+ * @param pageStartOffset Which byte in the BerkeleyDB points to the start of the page.
+ * @param pageSizeBytes How big is every page (typically it would be 4096 bytes).
+ */
 export function bufferToHashValueContent(
   berkeleydb: Buffer,
   page: Buffer,
-  pageStartByte: number,
-  pageSize: number,
+  pageStartOffset: number,
+  pageSizeBytes: number,
 ): Buffer {
-  const pageType = page[pageStartByte];
-  switch (pageType) {
-    case HashPageType.H_OFFPAGE:
-      break;
-    default:
-      throw new Error('Unsupported page type');
+  // The byte offset that describes the page type is the same regardless of the page type.
+  // Note there may be 5 different page types of varying length, but we are interested only one.
+  const pageType = page.readUInt8(pageStartOffset);
+  if (pageType !== HashPageType.H_OFFPAGE) {
+    throw new Error('Unsupported page type');
   }
 
-  const entry = page.slice(pageStartByte, pageStartByte + HASH_OVERFLOW_SIZE);
-  const pgno = entry.readUInt32LE(4);
-  const tlen = entry.readUInt32LE(8);
+  const startPageNumber = page.readUInt32LE(pageStartOffset + 4);
+  const dataLengthBytes = page.readUInt32LE(pageStartOffset + 8);
 
-  return reconstructValue(berkeleydb, pgno, tlen, pageSize);
-}
-
-function reconstructValue(
-  berkeleydb: Buffer,
-  startPgno: number,
-  dataLengthBytes: number,
-  pageSize: number,
-): Buffer {
   const result = Buffer.alloc(dataLengthBytes);
   let bytesWritten = 0;
 
-  for (let nextPgno = startPgno; nextPgno !== 0; ) {
-    const pageStart = pageSize * nextPgno;
-    const pageEnd = pageSize * nextPgno + pageSize;
+  // Traverse the pages, using "nextPageNumber" in the page metadata to see if we've reached the end.
+  for (let currentPageNumber = startPageNumber; currentPageNumber !== 0; ) {
+    const pageStart = pageSizeBytes * currentPageNumber;
+    const pageEnd = pageStart + pageSizeBytes;
 
-    const page = berkeleydb.slice(pageStart, pageEnd);
-    const next_pgno = page.readUInt32LE(16);
-    const hf_offset = page.readUInt16LE(22);
+    const currentPage = berkeleydb.slice(pageStart, pageEnd);
+    const nextPageNumber = currentPage.readUInt32LE(16);
+    const freeAreaOffset = currentPage.readUInt16LE(22);
 
-    const isLastPage = next_pgno === 0;
+    const isLastPage = nextPageNumber === 0;
     const bytesToWrite = isLastPage
-      ? page.slice(DATABASE_PAGE_HEADER_SIZE, hf_offset)
-      : page.slice(DATABASE_PAGE_HEADER_SIZE, page.length);
+      ? // The last page points to where the data ends.
+        currentPage.slice(DATABASE_PAGE_HEADER_SIZE, freeAreaOffset)
+      : // Otherwise the whole page is filled with content.
+        currentPage.slice(DATABASE_PAGE_HEADER_SIZE, currentPage.length);
 
-    const index = bytesWritten;
-    result.set(bytesToWrite, index);
+    const byteOffset = bytesWritten;
+    result.set(bytesToWrite, byteOffset);
     bytesWritten += bytesToWrite.length;
 
-    nextPgno = next_pgno;
+    currentPageNumber = nextPageNumber;
   }
 
   return result;

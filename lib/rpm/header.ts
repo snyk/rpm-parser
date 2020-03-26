@@ -1,6 +1,13 @@
+import { eventLoopSpinner } from 'event-loop-spinner';
+
 import { IndexEntry, ENTRY_INFO_SIZE, EntryInfo } from './types';
 
-export function headerImport(data: Buffer): IndexEntry[] {
+/**
+ * Transform a blob of metadadata into addressable RPM package entries.
+ * The entries need to be further processed to extract package information.
+ * @param data A blob of RPM metadata, as stored inside BerkeleyDB.
+ */
+export async function headerImport(data: Buffer): Promise<IndexEntry[]> {
   const indexLength = data.readInt32BE(0);
   const dataLength = data.readInt32BE(4);
 
@@ -9,15 +16,14 @@ export function headerImport(data: Buffer): IndexEntry[] {
     throw new Error('Invalid index length');
   }
 
-  const entryInfos = new Array<EntryInfo>(indexLength);
+  const entryInfos = new Array<EntryInfo>();
 
   // Skip the first 2 items (index and data lengths)
   const dataStart = 8 + indexLength * ENTRY_INFO_SIZE;
 
   const index = data.slice(8, indexLength * ENTRY_INFO_SIZE);
 
-  // Skip the first entry
-  for (let i = 1; i < indexLength; i++) {
+  for (let i = 0; i < indexLength; i++) {
     const bytes = index.slice(
       i * ENTRY_INFO_SIZE,
       i * ENTRY_INFO_SIZE + ENTRY_INFO_SIZE,
@@ -34,23 +40,22 @@ export function headerImport(data: Buffer): IndexEntry[] {
       count: bytes.readUInt32BE(12),
     };
 
-    entryInfos[i - 1] = entryInfo;
+    entryInfos.push(entryInfo);
+
+    if (eventLoopSpinner.isStarving()) {
+      await eventLoopSpinner.spin();
+    }
   }
 
-  return regionSwab(
-    data,
-    entryInfos.filter((entry) => entry !== undefined),
-    dataStart,
-    dataLength,
-  );
+  return regionSwab(data, entryInfos, dataStart, dataLength);
 }
 
-function regionSwab(
+async function regionSwab(
   data: Buffer,
   entryInfos: EntryInfo[],
   dataStart: number,
   dataLength: number,
-): IndexEntry[] {
+): Promise<IndexEntry[]> {
   const indexEntries = new Array<IndexEntry>(entryInfos.length);
 
   for (let i = 0; i < entryInfos.length; i++) {
@@ -71,6 +76,10 @@ function regionSwab(
     };
 
     indexEntries[i] = indexEntry;
+
+    if (eventLoopSpinner.isStarving()) {
+      await eventLoopSpinner.spin();
+    }
   }
 
   return indexEntries;
