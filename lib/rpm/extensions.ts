@@ -1,16 +1,14 @@
-import {
-  IndexEntry,
-  PackageInfo,
-  RpmTag,
-  RpmType,
-} from './types';
+import { eventLoopSpinner } from 'event-loop-spinner';
 
-function extractString(data: Buffer) {
-  const contentEnd = data.indexOf(0);
-  return data.slice(0, contentEnd).toString('utf-8');
-}
+import { IndexEntry, PackageInfo, RpmTag, RpmType } from './types';
 
-export function getNEVRA(entries: IndexEntry[]): Partial<PackageInfo> {
+/**
+ * Iterate through RPM metadata entries to build the full package data.
+ * @param entries Entries that were previously extracted from a BerkeleyDB blob.
+ */
+export async function getPackageInfo(
+  entries: IndexEntry[],
+): Promise<PackageInfo | undefined> {
   const packageInfo: Partial<PackageInfo> = {};
   for (const entry of entries) {
     switch (entry.info.tag) {
@@ -57,9 +55,36 @@ export function getNEVRA(entries: IndexEntry[]): Partial<PackageInfo> {
         break;
 
       default:
-        continue;
+        break;
+    }
+
+    if (eventLoopSpinner.isStarving()) {
+      await eventLoopSpinner.spin();
     }
   }
 
-  return packageInfo;
+  return isPackageInfo(packageInfo) ? packageInfo : undefined;
+}
+
+/**
+ * The content may be padded with zeros so we can't directly convert it to string.
+ * Find the first 0 byte which indicates where the string ends.
+ */
+function extractString(data: Buffer): string {
+  const contentEnd = data.indexOf(0);
+  return data.slice(0, contentEnd).toString('utf-8');
+}
+
+/**
+ * Type checks to assert we are dealing with the expected type.
+ */
+function isPackageInfo(
+  packageInfo: Partial<PackageInfo>,
+): packageInfo is PackageInfo {
+  return (
+    packageInfo.name !== undefined &&
+    packageInfo.version !== undefined &&
+    packageInfo.release !== undefined &&
+    packageInfo.size !== undefined
+  );
 }

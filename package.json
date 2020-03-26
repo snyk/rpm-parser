@@ -17,7 +17,7 @@
   "author": "snyk.io",
   "license": "Apache-2.0",
   "engines": {
-    "node": ">=6"
+    "node": ">=8"
   },
   "files": [
     "bin",
@@ -25,16 +25,16 @@
   ],
   "homepage": "https://github.com/snyk/rpm-parser#readme",
   "dependencies": {
-    "@types/node": "^13.9.2",
-    "event-loop-spinner": "^1.1.0",
-    "tslib": "^1.10.0",
-    "typescript": "^3.8.3"
+    "@types/node": "8.10.59",
+    "event-loop-spinner": "1.1.0",
+    "tslib": "1.10.0",
+    "typescript": "3.8.3"
   },
   "devDependencies": {
-    "@types/jest": "^23.3.14",
-    "jest": "^23.6.0",
-    "ts-jest": "^23.10.5",
+    "@types/jest": "23.3.14",
+    "jest": "23.6.0",
+    "ts-jest": "23.10.5",
     "ts-node": "7.0.0",
-    "tsc-watch": "^4.2.3"
+    "tsc-watch": "4.2.3"
   }
 }

@@ -1,10 +1,13 @@
+/**
+ * Size of an RPM metadata entry in bytes.
+ */
 export const ENTRY_INFO_SIZE = 16;
 
 export interface EntryInfo {
   tag: number; // Int32, Tag identifier.
-  type: number; // Uint32, Tag data type.
-  offset: number; // Int32, Offset into data segment (ondisk only).
-  count: number; // Uint32, Number of tag elements.
+  type: number; // UInt32, Tag data type.
+  offset: number; // Int32, Offset into data segment (on-disk only).
+  count: number; // UInt32, Number of tag elements.
 }
 
 export interface IndexEntry {
@@ -13,13 +16,17 @@ export interface IndexEntry {
   data: Buffer;
 }
 
+/**
+ * All of the entries in an RPM package are optional.
+ * When reading them we try to populate as much as we can.
+ */
 export interface PackageInfo {
-  epoch?: number;
   name: string;
   version: string;
   release: string;
-  arch: string;
   size: number;
+  arch?: string;
+  epoch?: number;
 }
 
 export enum RpmTag {
@@ -27,8 +34,8 @@ export enum RpmTag {
   VERSION = 1001,
   RELEASE = 1002,
   EPOCH = 1003,
-  ARCH = 1022,
   SIZE = 1009,
+  ARCH = 1022,
 }
 
 export enum RpmType {

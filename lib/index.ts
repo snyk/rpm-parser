@@ -1,66 +1,34 @@
-import { eventLoopSpinner } from 'event-loop-spinner';
+import { bufferToHashDbValues } from './berkeleydb';
+import { bufferToPackageInfo } from './rpm';
+import { PackageInfo } from './rpm/types';
 
-import {
-  DatabasePageType,
-  HashPageType,
-  DATABASE_PAGE_HEADER_SIZE,
-} from './types';
-import { bufferToHashIndexValues } from './berkeleydb/database-pages';
-import { bufferToHashValueContent } from './berkeleydb/hash-pages';
-
-import { headerImport } from './rpm/header';
-import { getNEVRA } from './rpm/extensions';
-
+/**
+ * Get a list of packages given a Buffer that contains an RPM database in BerkeleyDB format.
+ * The database is inspected as best-effort, returning all valid/readable entries.
+ * @param data An RPM database in BerkeleyDB format.
+ * @deprecated Should use snyk/dep-graph. This format is kept for backwards compatibility with snyk/kubernetes-monitor.
+ */
 export async function getPackages(data: Buffer): Promise<string> {
-  const pagesize = data.readUInt32LE(20);
-  const last_pgno = data.readUInt32LE(32);
+  const berkeleyDbValues = await bufferToHashDbValues(data);
 
-  const output: string[] = [];
+  const rpmPackageInfos = await Promise.all(
+    berkeleyDbValues.map((entry) => {
+      return bufferToPackageInfo(entry);
+    }),
+  );
 
-  for (let pgno = 1; pgno < last_pgno; pgno++) {
-    const pageStart = pgno * pagesize;
-    const pageEnd = pgno * pagesize + pagesize;
+  const healthyPackages = rpmPackageInfos.filter(
+    (pkg) => pkg !== undefined,
+  ) as PackageInfo[];
 
-    const pageType = data[pageStart + DATABASE_PAGE_HEADER_SIZE - 1];
-    // Look only for HASH pages, we will traverse them in subsequent steps
-    if (pageType !== DatabasePageType.P_HASH) {
-      continue;
+  const stringEntries = healthyPackages.map((packageInfo) => {
+    const hasEpoch = packageInfo.epoch !== undefined && packageInfo.epoch !== 0;
+    if (!hasEpoch) {
+      return `${packageInfo.name}\t${packageInfo.version}-${packageInfo.release}\t${packageInfo.size}`;
+    } else {
+      return `${packageInfo.name}\t${packageInfo.epoch}:${packageInfo.version}-${packageInfo.release}\t${packageInfo.size}`;
     }
+  });
 
-    const page = data.slice(pageStart, pageEnd);
-    const entries = page.readUInt16LE(20);
-    const hashIndex = bufferToHashIndexValues(page, entries);
-
-    for (const hashPage of hashIndex) {
-      const valuePageType = page[hashPage];
-      if (valuePageType !== HashPageType.H_OFFPAGE) {
-        // The first page will have a key and value of type H_KEYDATA,
-        // the value means nothing to us, so we can just skip it.
-        continue;
-      }
-
-      const valueContent = bufferToHashValueContent(
-        data,
-        page,
-        hashPage,
-        pagesize,
-      );
-
-      const entries = headerImport(valueContent);
-      const packageInfo = getNEVRA(entries);
-
-      const entry =
-        packageInfo.epoch === undefined || packageInfo.epoch === 0
-          ? `${packageInfo.name}\t${packageInfo.version}-${packageInfo.release}\t${packageInfo.size}`
-          : // tslint:disable-next-line: max-line-length
-            `${packageInfo.name}\t${packageInfo.epoch}:${packageInfo.version}-${packageInfo.release}\t${packageInfo.size}`;
-      output.push(entry);
-    }
-
-    if (eventLoopSpinner.isStarving()) {
-      await eventLoopSpinner.spin();
-    }
-  }
-
-  return output.join('\n');
+  return stringEntries.join('\n');
 }
