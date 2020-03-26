@@ -24,20 +24,20 @@ export async function headerImport(data: Buffer): Promise<IndexEntry[]> {
   const index = data.slice(8, indexLength * ENTRY_INFO_SIZE);
 
   for (let i = 0; i < indexLength; i++) {
-    const bytes = index.slice(
+    const entry = index.slice(
       i * ENTRY_INFO_SIZE,
       i * ENTRY_INFO_SIZE + ENTRY_INFO_SIZE,
     );
 
-    if (bytes.length < ENTRY_INFO_SIZE) {
+    if (entry.length < ENTRY_INFO_SIZE) {
       continue;
     }
 
     const entryInfo: EntryInfo = {
-      tag: bytes.readInt32BE(0),
-      type: bytes.readUInt32BE(4),
-      offset: bytes.readInt32BE(8),
-      count: bytes.readUInt32BE(12),
+      tag: entry.readInt32BE(0),
+      type: entry.readUInt32BE(4),
+      offset: entry.readInt32BE(8),
+      count: entry.readUInt32BE(12),
     };
 
     entryInfos.push(entryInfo);

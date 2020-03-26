@@ -10,6 +10,7 @@ export async function getPackageInfo(
   entries: IndexEntry[],
 ): Promise<PackageInfo | undefined> {
   const packageInfo: Partial<PackageInfo> = {};
+
   for (const entry of entries) {
     switch (entry.info.tag) {
       case RpmTag.NAME:
