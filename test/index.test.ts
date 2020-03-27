@@ -7,16 +7,21 @@ function fixturePath(path: string): string {
   return join(__dirname, path);
 }
 
-describe('testing various RPM databases', () => {
+describe('Testing various RPM databases', () => {
   const fixturePaths = [
-    'Packages_centos6_dev_tools',
-    'Packages_centos6_many',
-    'Packages_centos6_plain',
-    'Packages_centos7_dev_tools',
-    'Packages_centos7_httpd24',
-    'Packages_centos7_many',
-    'Packages_centos7_plain',
-    'Packages_centos7_python35',
+    'amazonlinux2_plain',
+    'centos6_dev_tools',
+    'centos6_many',
+    'centos6_plain',
+    'centos7_dev_tools',
+    'centos7_httpd24',
+    'centos7_many',
+    'centos7_plain',
+    'centos7_python35',
+    'fedora26_many',
+    'rpm4_empty',
+    'ubi7_plain',
+    'ubi8_plain',
   ];
 
   for (const path of fixturePaths) {
