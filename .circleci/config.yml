@@ -3,16 +3,8 @@ version: 2.1
 defaults: &defaults
   resource_class: small
   docker:
-    - image: gcr.io/snyk-main/nsolid-ubuntu:erbium
-      auth:
-        username: _json_key
-        password: $GCLOUD_GCR_BUILDER
+    - image: node:12
   working_directory: ~/rpm-parser
-
-private_cicd_repo_auth: &private_cicd_repo_auth
-  auth:
-    username: _json_key
-    password: $GCLOUD_GCR_BUILDER
 
 commands:
   install_deps:
@@ -51,11 +43,18 @@ jobs:
     steps:
       - install_deps
 
+  lint:
+    <<: *defaults
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/rpm-parser
+      - run:
+          name: Lint
+          command: npm run lint
+
   test:
     <<: *defaults
-    docker:
-      - image: gcr.io/snyk-main/nsolid-ubuntu:erbium
-        <<: *private_cicd_repo_auth
     steps:
       - checkout
       - attach_workspace:
@@ -70,7 +69,7 @@ jobs:
       - checkout
       - run:
           name: Release on GitHub
-          command: npx semantic-release
+          command: exit 1 # npx semantic-release
 
 workflows:
   version: 2
@@ -80,6 +79,16 @@ workflows:
       - install_dev_deps:
           name: Install with devDependencies
           context: nodejs-install
+          filters:
+            branches:
+              ignore:
+                - master
+      
+      - lint:
+          name: Lint
+          context: nodejs-install
+          requires:
+            - Install with devDependencies
           filters:
             branches:
               ignore:
@@ -98,6 +107,7 @@ workflows:
           context: nodejs-install
           requires:
             - Test
+            - Lint
           filters:
             branches:
               ignore:
@@ -112,6 +122,15 @@ workflows:
             branches:
               only:
                 - master
+      - lint:
+          name: Lint
+          context: nodejs-install
+          requires:
+            - Install with devDependencies
+          filters:
+            branches:
+              only:
+                - master
       - test:
           name: Test
           context: nodejs-install
@@ -126,6 +145,7 @@ workflows:
           context: nodejs-install
           requires:
             - Test
+            - Lint
           filters:
             branches:
               only:
@@ -136,6 +156,7 @@ workflows:
           requires:
             - Install with devDependencies
             - Test
+            - Lint
             - Install PROD deps
           filters:
             branches:

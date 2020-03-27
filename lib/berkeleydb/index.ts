@@ -119,7 +119,7 @@ export function validateBerkeleyDbMetadata(data: Buffer): void | never {
 /**
  * Exported for testing
  */
-export function validatePageSize(pageSize: number) {
+export function validatePageSize(pageSize: number): void | never {
   if (!validPageSizes.includes(pageSize)) {
     throw new Error(`Invalid page size: ${pageSize}`);
   }

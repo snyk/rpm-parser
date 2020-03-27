@@ -6,6 +6,7 @@
     "test": "jest",
     "build": "tsc",
     "debug": "tsc-watch --project tsconfig.json --onSuccess 'node --inspect --debug-brk .'",
+    "lint": "eslint 'lib/**/*.ts' && (cd test && eslint '**/*.ts')",
     "build-watch": "tsc -w",
     "prepare": "npm run build"
   },
@@ -26,12 +27,16 @@
   "homepage": "https://github.com/snyk/rpm-parser#readme",
   "dependencies": {
     "@types/node": "8.10.59",
+    "eslint": "6.8.0",
     "event-loop-spinner": "1.1.0",
     "tslib": "1.10.0",
     "typescript": "3.8.3"
   },
   "devDependencies": {
     "@types/jest": "23.3.14",
+    "@typescript-eslint/eslint-plugin": "2.25.0",
+    "@typescript-eslint/parser": "2.25.0",
+    "eslint-config-prettier": "6.10.1",
     "jest": "23.6.0",
     "ts-jest": "23.10.5",
     "ts-node": "7.0.0",
