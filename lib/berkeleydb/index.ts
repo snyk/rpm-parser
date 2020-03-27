@@ -84,7 +84,10 @@ export async function bufferToHashDbValues(
   return result;
 }
 
-function validateBerkeleyDbMetadata(data: Buffer): void | never {
+/**
+ * Exported for testing
+ */
+export function validateBerkeleyDbMetadata(data: Buffer): void | never {
   // We are only interested in Hash DB. Other types are B-Tree, Queue, Heap, etc.
   const magicNumber = data.readUInt32LE(12);
   if (magicNumber !== MagicNumber.DB_HASH) {
@@ -104,7 +107,7 @@ function validateBerkeleyDbMetadata(data: Buffer): void | never {
 
   // We will be pre-allocating some memory for the entries in the database.
   // Choose a very high, possibly unrealistic number, for the number of installed
-  // packages on the system. We don't want to allocate too much meemory.
+  // packages on the system. We don't want to allocate too much memory.
   const entriesCount = data.readUInt32LE(88);
   if (entriesCount < 0 || entriesCount > 50_000) {
     throw new Error(
@@ -113,8 +116,11 @@ function validateBerkeleyDbMetadata(data: Buffer): void | never {
   }
 }
 
-function validatePageSize(pageSize: number) {
+/**
+ * Exported for testing
+ */
+export function validatePageSize(pageSize: number) {
   if (!validPageSizes.includes(pageSize)) {
-    throw new Error(`Invalid page size: ${validPageSizes}`);
+    throw new Error(`Invalid page size: ${pageSize}`);
   }
 }
