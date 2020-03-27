@@ -87,6 +87,8 @@ workflows:
       - lint:
           name: Lint
           context: nodejs-install
+          requires:
+            - Install with devDependencies
           filters:
             branches:
               ignore:
@@ -123,6 +125,8 @@ workflows:
       - lint:
           name: Lint
           context: nodejs-install
+          requires:
+            - Install with devDependencies
           filters:
             branches:
               only:
