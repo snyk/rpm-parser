@@ -22,14 +22,14 @@ export async function getPackageInfo(
 
       case RpmTag.RELEASE:
         if (entry.info.type !== RpmType.STRING) {
-          throw new Error('Unexpected type for name tag');
+          throw new Error('Unexpected type for release tag');
         }
         packageInfo.release = extractString(entry.data);
         break;
 
       case RpmTag.ARCH:
         if (entry.info.type !== RpmType.STRING) {
-          throw new Error('Unexpected type for name tag');
+          throw new Error('Unexpected type for arch tag');
         }
         packageInfo.arch = extractString(entry.data);
         break;
@@ -43,14 +43,14 @@ export async function getPackageInfo(
 
       case RpmTag.SIZE:
         if (entry.info.type !== RpmType.INT32) {
-          throw new Error('Unexpected type for epoch tag');
+          throw new Error('Unexpected type for size tag');
         }
         packageInfo.size = entry.data.readInt32BE(0);
         break;
 
       case RpmTag.VERSION:
         if (entry.info.type !== RpmType.STRING) {
-          throw new Error('Unexpected type for name tag');
+          throw new Error('Unexpected type for version tag');
         }
         packageInfo.version = extractString(entry.data);
         break;
