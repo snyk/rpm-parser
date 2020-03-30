@@ -3,7 +3,7 @@ version: 2.1
 defaults: &defaults
   resource_class: small
   docker:
-    - image: node:12
+    - image: node:8
   working_directory: ~/rpm-parser
 
 commands:
@@ -13,16 +13,16 @@ commands:
       - checkout
       - restore_cache:
           keys:
-            - v1-npm-cache-{{ checksum "package-lock.json" }}
+            - v1-npm-cache-{{ checksum "package.json" }}
             - v1-npm-cache-
       - run:
           name: Use snyk-main npmjs user
           command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
       - run:
           name: Install dependencies
-          command: npm ci
+          command: npm install
       - save_cache:
-          key: v1-npm-cache-{{ checksum "package-lock.json" }}
+          key: v1-npm-cache-{{ checksum "package.json" }}
           paths:
             - ~/.npm
       - persist_to_workspace:
