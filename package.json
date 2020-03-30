@@ -1,19 +1,19 @@
 {
-  "name": "rpm-parser",
-  "description": "",
+  "name": "@snyk/rpm-parser",
+  "description": "Produce a list of dependencies from an RPM database file.",
   "main": "dist/index.js",
   "scripts": {
-    "test": "jest",
     "build": "tsc",
+    "build-watch": "tsc -w",
     "debug": "tsc-watch --project tsconfig.json --onSuccess 'node --inspect --debug-brk .'",
     "lint": "eslint 'lib/**/*.ts' && (cd test && eslint '**/*.ts')",
-    "build-watch": "tsc -w",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "test": "jest"
   },
   "types": "./dist/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/snyk/rpm-parser.git"
+    "url": "https://github.com/snyk/rpm-parser"
   },
   "author": "snyk.io",
   "license": "Apache-2.0",
