@@ -6,6 +6,12 @@ defaults: &defaults
     - image: node:8
   working_directory: ~/rpm-parser
 
+release_defaults: &release_defaults
+  resource_class: small
+  docker:
+    - image: node:12
+  working_directory: ~/rpm-parser
+
 commands:
   install_deps:
     description: Install dependencies
@@ -64,7 +70,7 @@ jobs:
           command: npm run test
 
   release:
-    <<: *defaults
+    <<: *release_defaults
     steps:
       - checkout
       - run:
