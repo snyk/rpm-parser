@@ -4,9 +4,10 @@ import { DATABASE_PAGE_HEADER_SIZE } from '../../../lib/berkeleydb/types';
 describe('database-pages.test.ts', () => {
   describe('bufferToHashIndexValues()', () => {
     it('throws on uneven number of entries', () => {
+      const pageIncludingPgnoField = Buffer.alloc(12);
       const unevenEntries = 3;
       expect(() => {
-        bufferToHashIndexValues(Buffer.alloc(0), unevenEntries);
+        bufferToHashIndexValues(pageIncludingPgnoField, unevenEntries);
       }).toThrowError('The number of entries must be a multiple of 2');
     });
 

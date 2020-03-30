@@ -15,8 +15,10 @@ export function bufferToHashIndexValues(
 ): number[] {
   // Hash table entries are always stored in pairs of 2.
   if (entries % 2 !== 0) {
+    const pageNumber = page.readUInt32LE(8);
     throw new ParserError('The number of entries must be a multiple of 2', {
       entries,
+      pageNumber,
     });
   }
 
