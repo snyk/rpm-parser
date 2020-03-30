@@ -38,7 +38,7 @@ Bytes 0-71 contain the generic BerkeleyDB header, whereas bytes 72-511 contain t
 | iv | 476-495 | Crypto IV |  Not used in RPM |
 | chksum | 496-511 | Page checksum | Not used in RPM |
 
-## Page header
+## Page header ##
 
 This header appears at the start of every page regardless of its type and is 26-bytes long. This means that for a 4096-bytes page it leaves up to 4070 bytes for content.
 
@@ -52,3 +52,34 @@ This header appears at the start of every page regardless of its type and is 26-
 | hf_offset | 22-23 | High free byte page offset | Useful to determine where the data ends in an Overflow page |
 | level | 24 | B-Tree page level | Not used in Hash DB |
 | type | 25 | Page type | 0x07 for a Hash page, 0x0D for an Overflow page |
+
+## Hash page index ##
+
+| Hash page section | Bytes | Comment
+|---|---|---|
+| Page header | 0-25 | |
+| Hash index | 26-n | Every index entry is 2 bytes. The number of entries (n) is defined in the entries field of the page header, hence the hash index is 2*n bytes long. |
+| ... |
+| Hash entries | m-4095 | Located at the end of the page, in reverse order. The start of the entries (m) is defined in the hf_offset field of the page header. |
+
+The hash index contains 2-bytes long entries. Each entry is an offset to a byte in the current page. Reading this byte returns the type of hash entry, as defined below:
+
+## Hash entries ##
+
+The hash index can point to two types of entries: KEYDATA or OFFPAGE. Other types of entries are not used by RPM.
+
+Hash entries are always stored as key/value pairs.
+
+KEYDATA (Key/data entry) is 5 bytes long:
+| KEYDATA entry layout | Bytes | Comment |
+|---|---|---|
+| type | 0 | Must have the value 0x01. |
+| data | 1-4 | |
+
+OFFPAGE (Overflow entry) is 12 bytes long:
+| OFFPAGE entry layout | Bytes | Comment |
+|---|---|---|
+| type | 0 | Must have the value 0x03. |
+| unused | 1-3 | Padding |
+| pgno | 4-7 | Offset page number. This means that the data/content for this entry starts at that page number. Inspecting the page should return an Overflow page type in its page header. |
+| tlen | 8-11 | Total length of the item. Defined in terms of bytes. Data may span multiple pages. | 

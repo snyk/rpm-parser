@@ -1,14 +1,14 @@
-# RPM Parser Tests
+# RPM Parser Tests #
 
 The RPM parser tests use fixtures and output obtained from RPM-based images in order to compare its output to that of `rpm`.
 
-## Running tests
+## Running tests ##
 
 ```sh
 npm test
 ```
 
-## Creating or updating fixtures
+## Creating or updating fixtures ##
 
 Fixtures are created by running a container image, installing packages, and then obtaining the RPM database file as well as some formatted output from `rpm`.
 

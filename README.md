@@ -4,17 +4,17 @@
 
 Snyk helps you find, fix and monitor for known vulnerabilities in your dependencies, both on an ad hoc basis and as part of your CI (Build) system.
 
-## Snyk RPM Parser
+## Snyk RPM Parser ##
 
 A library that reads the list of packages inside an RPM database file.
 
-### How it works
+### How it works ###
 
 The parser loads an RPM database file, which is in a BerkeleyDB format. The parser reads the beginning of the file to determine if this is a valid an expected BerkeleyDB.
 
 The database is split into equally-sized pages. The database itself is of type Hash DB so the parser is interested only in pages that signify this type.
 
-### BerkeleyDB internals
+### BerkeleyDB internals ###
 
 The database layout looks like this:
 
@@ -37,7 +37,7 @@ The first page is the metadata page, which contains the database type, magic num
 
 Refer to the [BerkeleyDB module README](https://github.com/snyk/rpm-parser/blob/master/lib/berkeleydb/README.md) for a breakdown of the page layout for every page type.
 
-### RPM package extraction
+### RPM package extraction ###
 
 Once all data entries are obtained, the parser processes them as RPM metadata blobs.
 
