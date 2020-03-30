@@ -1,6 +1,12 @@
 export interface IParserResponse {
   response: string;
+  rpmMetadata?: IRpmMetadata;
   error?: ParserError;
+}
+
+export interface IRpmMetadata {
+  packagesProcessed: number;
+  packagesSkipped: number;
 }
 
 export class ParserError extends Error {
