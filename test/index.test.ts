@@ -35,11 +35,13 @@ describe('Testing various RPM databases', () => {
 
       const parserOutput = await getPackages(rpmDb);
 
+      expect(parserOutput.error).toBeUndefined();
+
       const expectedEntries = expectedOutput
         .trim()
         .split('\n')
         .sort();
-      const parserEntries = parserOutput
+      const parserEntries = parserOutput.response
         .trim()
         .split('\n')
         .sort();
