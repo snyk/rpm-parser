@@ -1,4 +1,5 @@
 import { DATABASE_PAGE_HEADER_SIZE, HASH_INDEX_ENTRY_SIZE } from './types';
+import { ParserError } from '../types';
 
 /**
  * Extract the values from a hash index, which is stored in a Hash DB page.
@@ -14,7 +15,9 @@ export function bufferToHashIndexValues(
 ): number[] {
   // Hash table entries are always stored in pairs of 2.
   if (entries % 2 !== 0) {
-    throw new Error('The number of entries must be a multiple of 2');
+    throw new ParserError('The number of entries must be a multiple of 2', {
+      entries,
+    });
   }
 
   // Every entry is a 2-byte offset that points somewhere in the current database page.

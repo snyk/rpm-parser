@@ -3,6 +3,7 @@ import { eventLoopSpinner } from 'event-loop-spinner';
 import { bufferToHashIndexValues } from './database-pages';
 import { bufferToHashValueContent } from './hash-pages';
 import { MagicNumber, DatabasePageType, HashPageType } from './types';
+import { ParserError } from '../types';
 
 export { bufferToHashIndexValues, bufferToHashValueContent };
 
@@ -91,18 +92,20 @@ export function validateBerkeleyDbMetadata(data: Buffer): void | never {
   // We are only interested in Hash DB. Other types are B-Tree, Queue, Heap, etc.
   const magicNumber = data.readUInt32LE(12);
   if (magicNumber !== MagicNumber.DB_HASH) {
-    throw new Error(`Unexpected database magic number: ${magicNumber}`);
+    throw new ParserError('Unexpected database magic number', { magicNumber });
   }
 
   // The first page of the database must be a Hash DB metadata page.
   const pageType = data.readUInt8(25);
   if (pageType !== DatabasePageType.P_HASHMETA) {
-    throw new Error(`Unexpected page type: ${pageType}`);
+    throw new ParserError('Unexpected page type', { pageType });
   }
 
   const encryptionAlgorithm = data.readUInt8(24);
   if (encryptionAlgorithm !== 0) {
-    throw new Error('Encrypted databases are not supported');
+    throw new ParserError('Encrypted databases are not supported', {
+      encryptionAlgorithm,
+    });
   }
 
   // We will be pre-allocating some memory for the entries in the database.
@@ -110,9 +113,9 @@ export function validateBerkeleyDbMetadata(data: Buffer): void | never {
   // packages on the system. We don't want to allocate too much memory.
   const entriesCount = data.readUInt32LE(88);
   if (entriesCount < 0 || entriesCount > 50_000) {
-    throw new Error(
-      `Invalid number of entries in the database: ${entriesCount}`,
-    );
+    throw new ParserError('Invalid number of entries in the database', {
+      entriesCount,
+    });
   }
 }
 
@@ -121,6 +124,6 @@ export function validateBerkeleyDbMetadata(data: Buffer): void | never {
  */
 export function validatePageSize(pageSize: number): void | never {
   if (!validPageSizes.includes(pageSize)) {
-    throw new Error(`Invalid page size: ${pageSize}`);
+    throw new ParserError('Invalid page size', { pageSize });
   }
 }
