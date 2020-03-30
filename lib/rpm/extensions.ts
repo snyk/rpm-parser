@@ -1,6 +1,7 @@
 import { eventLoopSpinner } from 'event-loop-spinner';
 
 import { IndexEntry, PackageInfo, RpmTag, RpmType } from './types';
+import { ParserError } from '../types';
 
 /**
  * Iterate through RPM metadata entries to build the full package data.
@@ -15,42 +16,54 @@ export async function getPackageInfo(
     switch (entry.info.tag) {
       case RpmTag.NAME:
         if (entry.info.type !== RpmType.STRING) {
-          throw new Error('Unexpected type for name tag');
+          throw new ParserError('Unexpected type for name tag', {
+            type: entry.info.type,
+          });
         }
         packageInfo.name = extractString(entry.data);
         break;
 
       case RpmTag.RELEASE:
         if (entry.info.type !== RpmType.STRING) {
-          throw new Error('Unexpected type for release tag');
+          throw new ParserError('Unexpected type for release tag', {
+            type: entry.info.type,
+          });
         }
         packageInfo.release = extractString(entry.data);
         break;
 
       case RpmTag.ARCH:
         if (entry.info.type !== RpmType.STRING) {
-          throw new Error('Unexpected type for arch tag');
+          throw new ParserError('Unexpected type for arch tag', {
+            type: entry.info.type,
+          });
         }
         packageInfo.arch = extractString(entry.data);
         break;
 
       case RpmTag.EPOCH:
         if (entry.info.type !== RpmType.INT32) {
-          throw new Error('Unexpected type for epoch tag');
+          throw new ParserError('Unexpected type for epoch tag', {
+            type: entry.info.type,
+          });
         }
         packageInfo.epoch = entry.data.readInt32BE(0);
         break;
 
       case RpmTag.SIZE:
         if (entry.info.type !== RpmType.INT32) {
-          throw new Error('Unexpected type for size tag');
+          throw new ParserError('Unexpected type for size tag', {
+            type: entry.info.type,
+          });
         }
         packageInfo.size = entry.data.readInt32BE(0);
         break;
 
       case RpmTag.VERSION:
         if (entry.info.type !== RpmType.STRING) {
-          throw new Error('Unexpected type for version tag');
+          throw new ParserError('Unexpected type for version tag', {
+            type: entry.info.type,
+          });
         }
         packageInfo.version = extractString(entry.data);
         break;
