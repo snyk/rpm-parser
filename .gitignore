@@ -1,8 +1,9 @@
 node_modules
+package-lock.json
 npm-debug.log
-# output
 dist
 .DS_Store
 *.log
 .idea
 data
+.vscode
