@@ -18,7 +18,15 @@ The database is split into equally-sized pages. The database itself is of type H
 
 The database layout looks like this:
 
-![BerkeleyDB Layout](https://storage.googleapis.com/snyk-k8s-fixtures/berkeleydb-layout.png)
+| Page layout: | Page number | Comment |
+|---|---|---|
+| Metadata page | 0 | Every page size is 4096 bytes |
+| Hash page | | Says where to find the data |
+| Overflow page | | Data may span multiple connected Overflow pages |
+| Overflow page | | |
+| Hash page | | |
+| Overflow page | | |
+| ... | n | The number of pages (n) is defined in the metadata page's last_pgno field |
 
 The first page is the metadata page, which contains the database type, magic number, number of entries, etc. Subsequent pages are either Hash DB pages or Overflow pages.
 
@@ -26,6 +34,8 @@ The first page is the metadata page, which contains the database type, magic num
 - Hash DB pages contain an index of offsets at the start of the page. These offsets point to entries within the same page. Accessing the entries gives us key/value pairs -- the key is not relevant (it is just an internal value to BerkeleyDB) but the value tells us where to find the data. The value tells us where to start looking for data (from which page), and how big the data is.
 - Overflow pages contain the actual data. The data may span multiple pages so pages are linked to each other using the `prev_pgno` and `next_pgno` fields of the page metadata.
 - Data is obtained by going through all linked overflow pages and collating the raw bytes.
+
+Refer to the [BerkeleyDB module README](https://github.com/snyk/rpm-parser/blob/master/lib/berkeleydb/README.md) for a breakdown of the page layout for every page type.
 
 ### RPM package extraction
 
