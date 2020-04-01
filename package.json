@@ -20,10 +20,6 @@
   "engines": {
     "node": ">=8"
   },
-  "files": [
-    "bin",
-    "dist"
-  ],
   "homepage": "https://github.com/snyk/rpm-parser#readme",
   "dependencies": {
     "@types/node": "8.10.59",
