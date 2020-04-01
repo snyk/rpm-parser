@@ -9,7 +9,7 @@ defaults: &defaults
 release_defaults: &release_defaults
   resource_class: small
   docker:
-    - image: node:12
+    - image: node:10
   working_directory: ~/rpm-parser
 
 commands:
@@ -77,6 +77,9 @@ jobs:
           name: Install dependencies
           command: npm install
       - run:
+          name: Build
+          command: npm run build
+      - run:
           name: Release on GitHub
           command: npx semantic-release
 
@@ -92,7 +95,6 @@ workflows:
             branches:
               ignore:
                 - master
-      
       - lint:
           name: Lint
           context: nodejs-install
@@ -149,16 +151,6 @@ workflows:
             branches:
               only:
                 - master
-      - install_prod_deps:
-          name: Install PROD deps
-          context: nodejs-install
-          requires:
-            - Test
-            - Lint
-          filters:
-            branches:
-              only:
-                - master
       - release:
           name: Release to GitHub
           context: nodejs-lib-release
@@ -166,7 +158,6 @@ workflows:
             - Install with devDependencies
             - Test
             - Lint
-            - Install PROD deps
           filters:
             branches:
               only:
