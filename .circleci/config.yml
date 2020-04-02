@@ -35,6 +35,15 @@ commands:
           root: .
           paths:
             - node_modules/
+  notify_slack_on_failure:
+    steps:
+      - run:
+          name: Notify Slack on failure
+          command: |
+            if [[ "$CIRCLE_BRANCH" == "master" ]]; then
+              ./.circleci/slack-notify-failure.sh "${CIRCLE_JOB}"
+            fi
+          when: on_fail
 
 jobs:
   install_dev_deps:
@@ -43,11 +52,13 @@ jobs:
       NODE_ENV: development
     steps:
       - install_deps
+      - notify_slack_on_failure
 
   install_prod_deps:
     <<: *defaults
     steps:
       - install_deps
+      - notify_slack_on_failure
 
   lint:
     <<: *defaults
@@ -58,6 +69,7 @@ jobs:
       - run:
           name: Lint
           command: npm run lint
+      - notify_slack_on_failure
 
   test:
     <<: *defaults
@@ -68,6 +80,7 @@ jobs:
       - run:
           name: Run tests
           command: npm run test
+      - notify_slack_on_failure
 
   release:
     <<: *release_defaults
@@ -82,6 +95,7 @@ jobs:
       - run:
           name: Release on GitHub
           command: npx semantic-release
+      - notify_slack_on_failure
 
 workflows:
   version: 2
