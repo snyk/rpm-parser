@@ -28,10 +28,7 @@ describe('Testing various RPM databases', () => {
     // Create a test run for every fixture
     test(path, async () => {
       const fixture = fixturePath(`fixtures/${path}`);
-      const output = fixturePath(`outputs/${path}`);
-
       const rpmDb = readFileSync(fixture);
-      const expectedOutput = readFileSync(output, 'utf-8');
 
       const parserOutput = await getPackages(rpmDb);
 
@@ -39,20 +36,8 @@ describe('Testing various RPM databases', () => {
       expect(parserOutput.rpmMetadata).toBeDefined();
       expect(parserOutput.rpmMetadata!.packagesSkipped).toEqual(0);
 
-      const expectedEntries = expectedOutput
-        .trim()
-        .split('\n')
-        .sort();
-      const parserEntries = parserOutput.response
-        .trim()
-        .split('\n')
-        .sort();
-
-      for (let j = 0; j < expectedEntries.length; j++) {
-        const expectedEntry = expectedEntries[j];
-        const parserEntry = parserEntries[j];
-        expect(parserEntry).toEqual(expectedEntry);
-      }
+      const parserEntries = parserOutput.dependencies;
+      expect(parserEntries).toMatchSnapshot(path);
     });
   }
 });

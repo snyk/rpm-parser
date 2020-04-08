@@ -1,6 +1,7 @@
+import { DepGraphBuilder, PkgManager, PkgInfo } from '@snyk/dep-graph';
+
 import { bufferToHashDbValues } from './berkeleydb';
 import { bufferToPackageInfo } from './rpm';
-import { PackageInfo } from './rpm/types';
 import { IParserResponse } from './types';
 
 /**
@@ -10,18 +11,32 @@ import { IParserResponse } from './types';
  * @deprecated Should use snyk/dep-graph. The response format is kept for backwards compatibility with snyk/kubernetes-monitor.
  */
 export async function getPackages(data: Buffer): Promise<IParserResponse> {
+  const packageManager: PkgManager = { name: 'rpm' };
+  const rootPackage: PkgInfo = { name: '/var/lib/rpm/Packages' };
+  const graphBuilder = new DepGraphBuilder(packageManager, rootPackage);
+
   try {
     const berkeleyDbValues = await bufferToHashDbValues(data);
 
     let packagesSkipped = 0;
     let packagesProcessed = 0;
 
-    const rpmPackageInfos = new Array<PackageInfo>();
     for (const entry of berkeleyDbValues) {
       try {
         const packageInfo = await bufferToPackageInfo(entry);
         if (packageInfo !== undefined) {
-          rpmPackageInfos.push(packageInfo);
+          const uniqueNodeId = `${packageInfo.name}-${
+            packageInfo.epoch || '0'
+          }:${packageInfo.version}-${packageInfo.release}-${packageInfo.size}-${
+            packageInfo.arch || 'noarch'
+          }`;
+
+          graphBuilder.addPkgNode(
+            { name: packageInfo.name, version: packageInfo.version },
+            uniqueNodeId,
+          );
+          graphBuilder.connectDep(graphBuilder.rootNodeId, uniqueNodeId);
+
           packagesProcessed += 1;
         } else {
           packagesSkipped += 1;
@@ -31,11 +46,8 @@ export async function getPackages(data: Buffer): Promise<IParserResponse> {
       }
     }
 
-    const formattedPackages = formatRpmPackages(rpmPackageInfos);
-    const response = formattedPackages.join('\n');
-
     return {
-      response,
+      dependencies: graphBuilder.build(),
       rpmMetadata: {
         packagesProcessed,
         packagesSkipped,
@@ -43,18 +55,8 @@ export async function getPackages(data: Buffer): Promise<IParserResponse> {
     };
   } catch (error) {
     return {
-      response: '',
+      dependencies: graphBuilder.build(),
       error,
     };
   }
-}
-
-function formatRpmPackages(packages: PackageInfo[]): string[] {
-  return packages.map((packageInfo) => {
-    if (packageInfo.epoch === undefined || packageInfo.epoch === 0) {
-      return `${packageInfo.name}\t${packageInfo.version}-${packageInfo.release}\t${packageInfo.size}`;
-    } else {
-      return `${packageInfo.name}\t${packageInfo.epoch}:${packageInfo.version}-${packageInfo.release}\t${packageInfo.size}`;
-    }
-  });
 }

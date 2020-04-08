@@ -1,5 +1,7 @@
+import { DepGraph } from '@snyk/dep-graph';
+
 export interface IParserResponse {
-  response: string;
+  dependencies: DepGraph;
   rpmMetadata?: IRpmMetadata;
   error?: ParserError;
 }
