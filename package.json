@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/snyk/rpm-parser#readme",
   "dependencies": {
-    "event-loop-spinner": "1.1.0"
+    "event-loop-spinner": "^2.0.0"
   },
   "devDependencies": {
     "@types/node": "8.10.59",
