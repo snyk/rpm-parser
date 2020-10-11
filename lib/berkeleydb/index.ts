@@ -3,7 +3,7 @@ import { eventLoopSpinner } from 'event-loop-spinner';
 import { bufferToHashIndexValues } from './database-pages';
 import { bufferToHashValueContent } from './hash-pages';
 import { MagicNumber, DatabasePageType, HashPageType } from './types';
-import { ParserError } from '../types';
+import { RpmParserError } from '../types';
 
 export { bufferToHashIndexValues, bufferToHashValueContent };
 
@@ -31,13 +31,8 @@ const validPageSizes: ReadonlyArray<number> = [
  * - An Overflow page -- this page contains the data. The data may span multiple pages (hence "overflow" pages).
  * @param data The contents of a BerkeleyDB database.
  */
-export async function bufferToHashDbValues(
-  data: Buffer,
-): Promise<Buffer[] | never> {
-  validateBerkeleyDbMetadata(data);
-
+export async function bufferToHashDbValues(data: Buffer): Promise<Buffer[]> {
   const pageSize = data.readUInt32LE(20);
-  validatePageSize(pageSize);
 
   const lastPageNumber = data.readUInt32LE(32);
 
@@ -85,25 +80,24 @@ export async function bufferToHashDbValues(
   return result;
 }
 
-/**
- * Exported for testing
- */
 export function validateBerkeleyDbMetadata(data: Buffer): void | never {
   // We are only interested in Hash DB. Other types are B-Tree, Queue, Heap, etc.
   const magicNumber = data.readUInt32LE(12);
   if (magicNumber !== MagicNumber.DB_HASH) {
-    throw new ParserError('Unexpected database magic number', { magicNumber });
+    throw new RpmParserError('Unexpected database magic number', {
+      magicNumber,
+    });
   }
 
   // The first page of the database must be a Hash DB metadata page.
   const pageType = data.readUInt8(25);
   if (pageType !== DatabasePageType.P_HASHMETA) {
-    throw new ParserError('Unexpected page type', { pageType });
+    throw new RpmParserError('Unexpected page type', { pageType });
   }
 
   const encryptionAlgorithm = data.readUInt8(24);
   if (encryptionAlgorithm !== 0) {
-    throw new ParserError('Encrypted databases are not supported', {
+    throw new RpmParserError('Encrypted databases are not supported', {
       encryptionAlgorithm,
     });
   }
@@ -113,7 +107,7 @@ export function validateBerkeleyDbMetadata(data: Buffer): void | never {
   // packages on the system. We don't want to allocate too much memory.
   const entriesCount = data.readUInt32LE(88);
   if (entriesCount < 0 || entriesCount > 50_000) {
-    throw new ParserError('Invalid number of entries in the database', {
+    throw new RpmParserError('Invalid number of entries in the database', {
       entriesCount,
     });
   }
@@ -124,6 +118,6 @@ export function validateBerkeleyDbMetadata(data: Buffer): void | never {
  */
 export function validatePageSize(pageSize: number): void | never {
   if (!validPageSizes.includes(pageSize)) {
-    throw new ParserError('Invalid page size', { pageSize });
+    throw new RpmParserError('Invalid page size', { pageSize });
   }
 }

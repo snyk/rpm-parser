@@ -1,5 +1,5 @@
 import { DATABASE_PAGE_HEADER_SIZE, HASH_INDEX_ENTRY_SIZE } from './types';
-import { ParserError } from '../types';
+import { RpmParserError } from '../types';
 
 /**
  * Extract the values from a hash index, which is stored in a Hash DB page.
@@ -16,7 +16,7 @@ export function bufferToHashIndexValues(
   // Hash table entries are always stored in pairs of 2.
   if (entries % 2 !== 0) {
     const pageNumber = page.readUInt32LE(8);
-    throw new ParserError('The number of entries must be a multiple of 2', {
+    throw new RpmParserError('The number of entries must be a multiple of 2', {
       entries,
       pageNumber,
     });
