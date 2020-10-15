@@ -1,7 +1,7 @@
 import { eventLoopSpinner } from 'event-loop-spinner';
 
 import { IndexEntry, ENTRY_INFO_SIZE, EntryInfo } from './types';
-import { RpmParserError } from '../types';
+import { ParserError } from '../types';
 
 /**
  * Transform a blob of metadadata into addressable RPM package entries.
@@ -14,7 +14,7 @@ export async function headerImport(data: Buffer): Promise<IndexEntry[]> {
 
   if (indexLength <= 0 || indexLength > 50_000) {
     // Ensure we don't allocate something crazy...
-    throw new RpmParserError('Invalid index length', { indexLength });
+    throw new ParserError('Invalid index length', { indexLength });
   }
 
   const entryInfos = new Array<EntryInfo>();

@@ -1,5 +1,5 @@
 import { DATABASE_PAGE_HEADER_SIZE, HashPageType } from './types';
-import { RpmParserError } from '../types';
+import { ParserError } from '../types';
 
 /**
  * Traverse the data (overflow) pages and extract the data.
@@ -24,7 +24,7 @@ export function bufferToHashValueContent(
   // Note there may be 5 different page types of varying length, but we are interested only one.
   const pageType = page.readUInt8(pageStartOffset);
   if (pageType !== HashPageType.H_OFFPAGE) {
-    throw new RpmParserError('Unsupported page type', { pageType });
+    throw new ParserError('Unsupported page type', { pageType });
   }
 
   const startPageNumber = page.readUInt32LE(pageStartOffset + 4);
