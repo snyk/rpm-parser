@@ -1,7 +1,7 @@
 import { eventLoopSpinner } from 'event-loop-spinner';
 
 import { IndexEntry, PackageInfo, RpmTag, RpmType } from './types';
-import { RpmParserError } from '../types';
+import { ParserError } from '../types';
 
 /**
  * Iterate through RPM metadata entries to build the full package data.
@@ -10,17 +10,13 @@ import { RpmParserError } from '../types';
 export async function getPackageInfo(
   entries: IndexEntry[],
 ): Promise<PackageInfo | undefined> {
-  /**
-   * All of the entries in an RPM package are optional.
-   * We try to collect as much info as possible and finally we check if it's enough to construct a package.
-   */
   const packageInfo: Partial<PackageInfo> = {};
 
   for (const entry of entries) {
     switch (entry.info.tag) {
       case RpmTag.NAME:
         if (entry.info.type !== RpmType.STRING) {
-          throw new RpmParserError('Unexpected type for name tag', {
+          throw new ParserError('Unexpected type for name tag', {
             type: entry.info.type,
           });
         }
@@ -29,7 +25,7 @@ export async function getPackageInfo(
 
       case RpmTag.RELEASE:
         if (entry.info.type !== RpmType.STRING) {
-          throw new RpmParserError('Unexpected type for release tag', {
+          throw new ParserError('Unexpected type for release tag', {
             type: entry.info.type,
           });
         }
@@ -38,7 +34,7 @@ export async function getPackageInfo(
 
       case RpmTag.ARCH:
         if (entry.info.type !== RpmType.STRING) {
-          throw new RpmParserError('Unexpected type for arch tag', {
+          throw new ParserError('Unexpected type for arch tag', {
             type: entry.info.type,
           });
         }
@@ -47,7 +43,7 @@ export async function getPackageInfo(
 
       case RpmTag.EPOCH:
         if (entry.info.type !== RpmType.INT32) {
-          throw new RpmParserError('Unexpected type for epoch tag', {
+          throw new ParserError('Unexpected type for epoch tag', {
             type: entry.info.type,
           });
         }
@@ -56,7 +52,7 @@ export async function getPackageInfo(
 
       case RpmTag.SIZE:
         if (entry.info.type !== RpmType.INT32) {
-          throw new RpmParserError('Unexpected type for size tag', {
+          throw new ParserError('Unexpected type for size tag', {
             type: entry.info.type,
           });
         }
@@ -65,7 +61,7 @@ export async function getPackageInfo(
 
       case RpmTag.VERSION:
         if (entry.info.type !== RpmType.STRING) {
-          throw new RpmParserError('Unexpected type for version tag', {
+          throw new ParserError('Unexpected type for version tag', {
             type: entry.info.type,
           });
         }

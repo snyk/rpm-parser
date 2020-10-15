@@ -16,6 +16,10 @@ export interface IndexEntry {
   data: Buffer;
 }
 
+/**
+ * All of the entries in an RPM package are optional.
+ * When reading them we try to populate as much as we can.
+ */
 export interface PackageInfo {
   name: string;
   version: string;
