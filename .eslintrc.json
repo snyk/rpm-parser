@@ -13,7 +13,6 @@
   "rules": {
     "@typescript-eslint/semi": "error",
     "@typescript-eslint/no-use-before-define": "off",
-    "@typescript-eslint/interface-name-prefix": "off",
     "@typescript-eslint/await-thenable": "error",
     "@typescript-eslint/ban-ts-ignore": "error",
     "@typescript-eslint/no-unnecessary-type-assertion": "error",
