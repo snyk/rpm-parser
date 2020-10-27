@@ -1,6 +1,11 @@
 import { eventLoopSpinner } from 'event-loop-spinner';
 
-import { IndexEntry, ENTRY_INFO_SIZE, EntryInfo } from './types';
+import {
+  IndexEntry,
+  ENTRY_INFO_SIZE,
+  EntryInfo,
+  PRIVATE_RPM_TAGS,
+} from './types';
 import { ParserError } from '../types';
 
 /**
@@ -40,6 +45,10 @@ export async function headerImport(data: Buffer): Promise<IndexEntry[]> {
       offset: entry.readInt32BE(8),
       count: entry.readUInt32BE(12),
     };
+
+    if (PRIVATE_RPM_TAGS.includes(entryInfo.tag)) {
+      continue;
+    }
 
     entryInfos.push(entryInfo);
 
