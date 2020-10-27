@@ -3,7 +3,21 @@
  */
 export const ENTRY_INFO_SIZE = 16;
 
+/** https://github.com/rpm-software-management/rpm/blob/ad1cad7e6a5def8b6036b90f2634297eda79dc7d/lib/rpmtag.h#L16-L25 */
+export const PRIVATE_RPM_TAGS: ReadonlyArray<number> = [
+  61, // Image
+  62, // Signatures
+  63, // Immutable
+  64, // Regions
+  100, // Internationalization table
+  256, // Signature base
+];
+
 export interface EntryInfo {
+  /**
+   * See the following for a full list of RPM tags:
+   * https://github.com/rpm-software-management/rpm/blob/ad1cad7e6a5def8b6036b90f2634297eda79dc7d/doc/manual/tags.md
+   */
   tag: number; // Int32, Tag identifier.
   type: number; // UInt32, Tag data type.
   offset: number; // Int32, Offset into data segment (on-disk only).

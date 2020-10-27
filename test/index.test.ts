@@ -39,14 +39,8 @@ describe('Testing various RPM databases', () => {
       expect(parserOutput.rpmMetadata).toBeDefined();
       expect(parserOutput.rpmMetadata!.packagesSkipped).toEqual(0);
 
-      const expectedEntries = expectedOutput
-        .trim()
-        .split('\n')
-        .sort();
-      const parserEntries = parserOutput.response
-        .trim()
-        .split('\n')
-        .sort();
+      const expectedEntries = expectedOutput.trim().split('\n').sort();
+      const parserEntries = parserOutput.response.trim().split('\n').sort();
 
       for (let j = 0; j < expectedEntries.length; j++) {
         const expectedEntry = expectedEntries[j];
