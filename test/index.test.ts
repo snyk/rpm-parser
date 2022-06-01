@@ -1,13 +1,13 @@
-import { readFileSync } from 'fs';
+import { readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 
-import { getPackages } from '../lib';
+import { getPackages, getPackagesSqlite } from '../lib';
 
 function fixturePath(path: string): string {
   return join(__dirname, path);
 }
 
-describe('Testing various RPM databases', () => {
+describe('Testing various RPM Berkeley databases', () => {
   const fixturePaths = [
     'amazonlinux2_plain',
     'centos6_dev_tools',
@@ -47,6 +47,22 @@ describe('Testing various RPM databases', () => {
         const parserEntry = parserEntries[j];
         expect(parserEntry).toEqual(expectedEntry);
       }
+    });
+  }
+});
+
+
+describe("Testing various RPM sqlite databases", async () => {
+  const fixtureDir: string = fixturePath('fixtures/rpm-4.16');
+  const outputDir: string = fixturePath('outputs/rpm-4.16');
+
+  const fixturesFileNames = readdirSync(fixtureDir);
+
+  for (const path of fixturesFileNames) {
+    test(`testing ${path}`, async () => {
+      const expectedOutput = readFileSync(`${outputDir}/${path}`, 'utf8');
+      const packagesDbContent = (await getPackagesSqlite(`${fixtureDir}/${path}`)).response;
+      expect(packagesDbContent).toMatchObject(JSON.parse(expectedOutput));
     });
   }
 });
