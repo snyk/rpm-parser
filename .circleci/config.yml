@@ -3,13 +3,13 @@ version: 2.1
 defaults: &defaults
   resource_class: small
   docker:
-    - image: node:8
+    - image: node:12
   working_directory: ~/rpm-parser
 
 release_defaults: &release_defaults
   resource_class: small
   docker:
-    - image: node:10
+    - image: node:14
   working_directory: ~/rpm-parser
 
 commands:
