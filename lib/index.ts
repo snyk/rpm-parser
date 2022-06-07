@@ -1,7 +1,11 @@
 import { bufferToHashDbValues } from './berkeleydb';
 import { bufferToPackageInfo } from './rpm';
 import { PackageInfo } from './rpm/types';
-import { IParserBerkeleyResponse, IParserSqliteResponse, ParserError } from './types';
+import {
+  IParserBerkeleyResponse,
+  IParserSqliteResponse,
+  ParserError,
+} from './types';
 import { default as initSqlJs } from 'sql.js';
 
 /**
@@ -10,7 +14,9 @@ import { default as initSqlJs } from 'sql.js';
  * @param data An RPM database in BerkeleyDB format.
  * @deprecated Should use snyk/dep-graph. The response format is kept for backwards compatibility with snyk/kubernetes-monitor.
  */
-export async function getPackages(data: Buffer): Promise<IParserBerkeleyResponse> {
+export async function getPackages(
+  data: Buffer,
+): Promise<IParserBerkeleyResponse> {
   try {
     const berkeleyDbValues = await bufferToHashDbValues(data);
 
@@ -65,24 +71,31 @@ function formatRpmPackages(packages: PackageInfo[]): string[] {
  * The database is inspected as best-effort, returning all valid/readable entries.
  * @param sqliteFilePath A path to an RPM sqlite Packages DB.
  */
-export async function getPackagesSqlite(sqliteDbBuffer: Buffer): Promise<IParserSqliteResponse> {
+export async function getPackagesSqlite(
+  sqliteDbBuffer: Buffer,
+): Promise<IParserSqliteResponse> {
   try {
-    const packageInfoBlobs = await getBlobsFromPackagesTableSqliteDb(sqliteDbBuffer);
-    const packages = await Promise.all(packageInfoBlobs.map((data: Buffer) => bufferToPackageInfo(data)));
+    const packageInfoBlobs = await getBlobsFromPackagesTableSqliteDb(
+      sqliteDbBuffer,
+    );
+    const packages = await Promise.all(
+      packageInfoBlobs.map((data: Buffer) => bufferToPackageInfo(data)),
+    );
     return { response: packages as PackageInfo[] };
-  }
-  catch (error) {
+  } catch (error) {
     return { response: [], error: error as ParserError };
   }
 }
 
 // TODO: revisit when new version of sql.js is available
 // OR we're able to use sqlite3 (Snyk CLI limitation with native modules)
-async function getBlobsFromPackagesTableSqliteDb(sqliteDbBuffer: Buffer): Promise<Buffer[]> {
+async function getBlobsFromPackagesTableSqliteDb(
+  sqliteDbBuffer: Buffer,
+): Promise<Buffer[]> {
   const SQL = await initSqlJs();
   const db = new SQL.Database(sqliteDbBuffer);
-  const dbContent = db.exec("SELECT blob FROM Packages");
+  const dbContent = db.exec('SELECT blob FROM Packages');
   const packagesInfoBlobs = dbContent[0].values;
   db.close();
-  return packagesInfoBlobs.map((data) => (Buffer.from(data[0] as Uint8Array)));
+  return packagesInfoBlobs.map((data) => Buffer.from(data[0] as Uint8Array));
 }

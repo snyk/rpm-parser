@@ -1,4 +1,4 @@
-import { PackageInfo } from "./rpm/types";
+import { PackageInfo } from './rpm/types';
 
 export interface IParserBerkeleyResponse {
   response: string;
