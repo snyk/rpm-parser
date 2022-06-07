@@ -61,7 +61,7 @@ describe("Testing various RPM sqlite databases", async () => {
   for (const path of fixturesFileNames) {
     test(`testing ${path}`, async () => {
       const expectedOutput = readFileSync(`${outputDir}/${path}`, 'utf8');
-      const packagesDbContent = (await getPackagesSqlite(`${fixtureDir}/${path}`)).response;
+      const packagesDbContent = (await getPackagesSqlite(readFileSync(`${fixtureDir}/${path}`))).response;
       expect(packagesDbContent).toMatchObject(JSON.parse(expectedOutput));
     });
   }
