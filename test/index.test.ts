@@ -51,8 +51,7 @@ describe('Testing various RPM Berkeley databases', () => {
   }
 });
 
-
-describe("Testing various RPM sqlite databases", async () => {
+describe('Testing various RPM sqlite databases', async () => {
   const fixtureDir: string = fixturePath('fixtures/rpm-4.16');
   const outputDir: string = fixturePath('outputs/rpm-4.16');
 
@@ -61,7 +60,9 @@ describe("Testing various RPM sqlite databases", async () => {
   for (const path of fixturesFileNames) {
     test(`testing ${path}`, async () => {
       const expectedOutput = readFileSync(`${outputDir}/${path}`, 'utf8');
-      const packagesDbContent = (await getPackagesSqlite(`${fixtureDir}/${path}`)).response;
+      const packagesDbContent = (
+        await getPackagesSqlite(readFileSync(`${fixtureDir}/${path}`))
+      ).response;
       expect(packagesDbContent).toMatchObject(JSON.parse(expectedOutput));
     });
   }
