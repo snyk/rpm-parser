@@ -58,12 +58,17 @@ export async function getPackages(
 
 function formatRpmPackages(packages: PackageInfo[]): string[] {
   return packages.map((packageInfo) => {
-    if (packageInfo.epoch === undefined || packageInfo.epoch === 0) {
-      return `${packageInfo.name}\t${packageInfo.version}-${packageInfo.release}\t${packageInfo.size}`;
-    } else {
-      return `${packageInfo.name}\t${packageInfo.epoch}:${packageInfo.version}-${packageInfo.release}\t${packageInfo.size}`;
-    }
+    return `${packageInfo.name}\t${formatRpmPackageVersion(packageInfo)}\t${
+      packageInfo.size
+    }`;
   });
+}
+
+export function formatRpmPackageVersion(packageInfo: PackageInfo): string {
+  if (packageInfo.epoch === undefined || packageInfo.epoch === 0) {
+    return `${packageInfo.version}-${packageInfo.release}`;
+  }
+  return `${packageInfo.epoch}:${packageInfo.version}-${packageInfo.release}`;
 }
 
 /**
