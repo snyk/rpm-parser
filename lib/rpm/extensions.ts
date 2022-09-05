@@ -68,6 +68,14 @@ export async function getPackageInfo(
         packageInfo.version = extractString(entry.data);
         break;
 
+      case RpmTag.MODULARITYLABEL:
+        if (entry.info.type !== RpmType.STRING) {
+          throw new ParserError('Unexpected type for module tag', {
+            type: entry.info.type,
+          });
+        }
+        const fullModule = extractString(entry.data);
+        packageInfo.module = extractModuleInfo(fullModule);
       default:
         break;
     }
@@ -101,4 +109,9 @@ function isPackageInfo(
     packageInfo.release !== undefined &&
     packageInfo.size !== undefined
   );
+}
+
+function extractModuleInfo(fullModule: string): string {
+  const [name, stream] = fullModule.split(':', 2);
+  return `${name}:${stream}`;
 }
