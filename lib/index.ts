@@ -65,7 +65,7 @@ function formatRpmPackages(packages: PackageInfo[]): string[] {
 }
 
 export function formatRpmPackageVersion(packageInfo: PackageInfo): string {
-  if (packageInfo.epoch === undefined || packageInfo.epoch === 0) {
+  if (packageInfo.epoch === undefined) {
     return `${packageInfo.version}-${packageInfo.release}`;
   }
   return `${packageInfo.epoch}:${packageInfo.version}-${packageInfo.release}`;
