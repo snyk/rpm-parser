@@ -355,7 +355,7 @@ pyparsing	1.5.6-9.el7	375948
 source-highlight	3.1.6-6.el7	3024049
 libwayland-client	1.15.0-1.el7	64076
 libssh2	1.4.3-12.el7_6.3	341878
-perl-ExtUtils-Install	1.58-294.el7_6	76408
+perl-ExtUtils-Install	0:1.58-294.el7_6	76408
 centos-indexhtml	7-9.el7.centos	92560
 docbook-dtds	1.0-60.el7	4634764
 libdrm	2.4.97-2.el7	367605
@@ -380,7 +380,7 @@ dbus-libs	1:1.10.24-13.el7_6	362560
 gtk2	2.24.31-1.el7	13494501
 libgs	9.25-2.el7_7.2	23204132
 dbus-python	1.1.1-9.el7	848122
-perl-ExtUtils-Embed	1.30-294.el7_6	17136
+perl-ExtUtils-Embed	0:1.30-294.el7_6	17136
 zlib-devel	1.2.7-18.el7	135536
 yum-plugin-ovl	1.1.31-50.el7	22399
 xz-devel	5.2.2-1.el7	168793

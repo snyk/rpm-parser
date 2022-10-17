@@ -39,14 +39,14 @@ gdbm-devel	1.8.0-39.el6	22251
 libgpg-error	1.7-4.el6	214321
 perl-ExtUtils-ParseXS	1:2.2003.0-144.el6	62208
 pcre	7.8-7.el6	529027
-perl-ExtUtils-MakeMaker	6.55-144.el6	622462
+perl-ExtUtils-MakeMaker	0:6.55-144.el6	622462
 findutils	1:4.4.2-9.el6	1442912
 docbook-dtds	1.0-51.el6	4571574
 centos-indexhtml	6-2.el6.centos	92560
 expat	2.0.1-13.el6_8	197794
 xmlto	0.0.23-3.el6	99317
 p11-kit	0.18.5-2.el6_5.2	262669
-perl-ExtUtils-Embed	1.28-144.el6	17130
+perl-ExtUtils-Embed	0:1.28-144.el6	17130
 libgcrypt	1.4.5-12.el6_8	536622
 dbus-libs	1:1.2.24-11.el6_10	265736
 libfontenc	1.1.2-3.el6	50316
@@ -135,7 +135,7 @@ perl-version	3:0.77-144.el6	51960
 perl-URI	1.40-2.el6	256097
 autoconf	2.63-5.1.el6	2605343
 perl-Compress-Raw-Zlib	1:2.021-144.el6	146581
-perl-IO-Compress-Zlib	2.021-144.el6	372202
+perl-IO-Compress-Zlib	0:2.021-144.el6	372202
 redhat-rpm-config	9.0.3-51.el6.centos	138592
 perl-HTML-Parser	3.64-2.el6	226598
 gettext	0.17-18.el6	6369345
@@ -198,7 +198,7 @@ xml-common	0.6.3-33.el6	20624
 libblkid	2.17.2-12.28.el6_9.2	136136
 db4-devel	4.7.25-22.el6	25205066
 elfutils-libelf	0.164-2.el6	1011166
-perl-Test-Harness	3.17-144.el6	408795
+perl-Test-Harness	0:3.17-144.el6	408795
 nss-softokn	3.14.3-23.3.el6_8	1103062
 perl-devel	4:5.10.1-144.el6	1870563
 grep	2.20-6.el6	1197904
@@ -220,7 +220,7 @@ libvorbis	1:1.2.3-5.el6_9.1	2152680
 net-tools	1.60-114.el6	778260
 libsndfile	1.0.20-5.el6	770762
 psmisc	22.6-24.el6	222569
-jpackage-utils	1.7.5-3.16.el6	168662
+jpackage-utils	0:1.7.5-3.16.el6	168662
 libselinux-utils	2.0.94-7.el6	62739
 tzdata-java	2019c-1.el6	373951
 bzip2	1.0.5-7.el6_0	79087
@@ -301,8 +301,8 @@ perl-Module-Pluggable	1:3.90-144.el6	31033
 perl	4:5.10.1-144.el6	35282834
 perl-Error	1:0.17015-4.el6	47372
 automake	1.11.1-4.el6	1520636
-perl-IO-Compress-Base	2.021-144.el6	138661
-perl-Compress-Zlib	2.021-144.el6	52519
+perl-IO-Compress-Base	0:2.021-144.el6	138661
+perl-Compress-Zlib	0:2.021-144.el6	52519
 perl-HTML-Tagset	3.20-4.el6	19692
 cvs	1.11.23-16.el6	1590583
 libXau	1.0.6-4.el6	40009

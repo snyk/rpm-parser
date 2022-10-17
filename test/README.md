@@ -21,7 +21,7 @@ yum groupinstall -y "Development tools"
 
 # Use RPM to produce a list of expected outputs.
 # Put the output in a file under outputs/<OutputName>.
-rpm -qa --queryformat "%{NAME}\t%{EPOCH}:%{VERSION}-%{RELEASE}\t%{SIZE}\n" | sed "s/(none)://g" | sed "s/0://g"
+rpm -qa --queryformat "%{NAME}\t%{EPOCH}:%{VERSION}-%{RELEASE}\t%{SIZE}\n" | sed "s/(none)://g"
 
 # In a separate shell copy the RPM database file into fixtures/.
 # Make sure the file is named similarly to the one under outputs/.
