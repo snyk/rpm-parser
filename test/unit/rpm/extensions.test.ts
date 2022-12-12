@@ -7,6 +7,7 @@ describe('getPackageInfo()', () => {
     const name = 'package\0';
     const release = 'rel\0';
     const version = '1.2.3\0';
+    const module = 'perl-libwww-perl:6.34:8030020200716155257:b967a9a2\0';
     const size = [0x00, 0x00, 0x00, 0x01]; // 1 in Big Endian
 
     const nameEntry = {
@@ -49,18 +50,30 @@ describe('getPackageInfo()', () => {
       data: Buffer.from(size),
       length: 0,
     };
+    const moduleEntry = {
+      info: {
+        tag: RpmTag.MODULARITYLABEL,
+        type: RpmType.STRING,
+        count: 0,
+        offset: 0,
+      },
+      data: Buffer.from(module),
+      length: 0,
+    };
 
     const packageEntries: IndexEntry[] = [
       nameEntry,
       releaseEntry,
       versionEntry,
       sizeEntry,
+      moduleEntry,
     ];
 
     await expect(getPackageInfo(packageEntries)).resolves.toEqual({
       name: 'package',
       release: 'rel',
       version: '1.2.3',
+      module: 'perl-libwww-perl:6.34:8030020200716155257:b967a9a2',
       size: 1,
     });
   });

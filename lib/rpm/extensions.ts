@@ -68,6 +68,16 @@ export async function getPackageInfo(
         packageInfo.version = extractString(entry.data);
         break;
 
+      case RpmTag.MODULARITYLABEL:
+        if (entry.info.type !== RpmType.STRING) {
+          throw new ParserError('Unexpected type for module tag', {
+            type: entry.info.type,
+          });
+        }
+
+        packageInfo.module = extractString(entry.data);
+        break;
+
       default:
         break;
     }

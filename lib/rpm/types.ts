@@ -41,6 +41,7 @@ export interface PackageInfo {
   size: number;
   arch?: string;
   epoch?: number;
+  module?: string;
 }
 
 export enum RpmTag {
@@ -50,6 +51,7 @@ export enum RpmTag {
   EPOCH = 1003,
   SIZE = 1009,
   ARCH = 1022,
+  MODULARITYLABEL = 5096,
 }
 
 export enum RpmType {
