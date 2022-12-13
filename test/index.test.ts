@@ -1,7 +1,12 @@
 import { readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 
-import { getPackages, getPackagesSqlite } from '../lib';
+import {
+  getPackages,
+  getPackagesSqlite,
+  formatRpmPackageVersion,
+} from '../lib';
+import { PackageInfo } from '../lib/rpm/types';
 
 function fixturePath(path: string): string {
   return join(__dirname, path);
@@ -35,12 +40,17 @@ describe('Testing various RPM Berkeley databases', () => {
 
       const parserOutput = await getPackages(rpmDb);
 
+      if (!expectedOutput) {
+        expect(parserOutput.response).toEqual([]);
+        return;
+      }
+
       expect(parserOutput.error).toBeUndefined();
       expect(parserOutput.rpmMetadata).toBeDefined();
       expect(parserOutput.rpmMetadata!.packagesSkipped).toEqual(0);
 
       const expectedEntries = expectedOutput.trim().split('\n').sort();
-      const parserEntries = parserOutput.response.trim().split('\n').sort();
+      const parserEntries = formatRpmPackages(parserOutput.response).sort();
 
       for (let j = 0; j < expectedEntries.length; j++) {
         const expectedEntry = expectedEntries[j];
@@ -67,3 +77,11 @@ describe('Testing various RPM sqlite databases', async () => {
     });
   }
 });
+
+function formatRpmPackages(packages: PackageInfo[]): string[] {
+  return packages.map((packageInfo) => {
+    return `${packageInfo.name}\t${formatRpmPackageVersion(packageInfo)}\t${
+      packageInfo.size
+    }`;
+  });
+}

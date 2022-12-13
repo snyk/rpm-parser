@@ -1,16 +1,12 @@
 import { PackageInfo } from './rpm/types';
 
-export interface IParserBerkeleyResponse {
-  response: string;
-  rpmMetadata?: IRpmMetadata;
-  error?: ParserError;
-}
-export interface IParserSqliteResponse {
+export interface Response {
   response: PackageInfo[];
-  rpmMetadata?: IRpmMetadata;
+  rpmMetadata?: RpmMetadata;
   error?: ParserError;
 }
-export interface IRpmMetadata {
+
+export interface RpmMetadata {
   packagesProcessed: number;
   packagesSkipped: number;
 }

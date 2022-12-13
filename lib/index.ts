@@ -1,22 +1,15 @@
 import { bufferToHashDbValues } from './berkeleydb';
 import { bufferToPackageInfo } from './rpm';
 import { PackageInfo } from './rpm/types';
-import {
-  IParserBerkeleyResponse,
-  IParserSqliteResponse,
-  ParserError,
-} from './types';
+import { Response, ParserError } from './types';
 import { default as initSqlJs } from 'sql.js';
 
 /**
  * Get a list of packages given a Buffer that contains an RPM database in BerkeleyDB format.
  * The database is inspected as best-effort, returning all valid/readable entries.
  * @param data An RPM database in BerkeleyDB format.
- * @deprecated Should use snyk/dep-graph. The response format is kept for backwards compatibility with snyk/kubernetes-monitor.
  */
-export async function getPackages(
-  data: Buffer,
-): Promise<IParserBerkeleyResponse> {
+export async function getPackages(data: Buffer): Promise<Response> {
   try {
     const berkeleyDbValues = await bufferToHashDbValues(data);
 
@@ -38,11 +31,8 @@ export async function getPackages(
       }
     }
 
-    const formattedPackages = formatRpmPackages(rpmPackageInfos);
-    const response = formattedPackages.join('\n');
-
     return {
-      response,
+      response: rpmPackageInfos,
       rpmMetadata: {
         packagesProcessed,
         packagesSkipped,
@@ -50,18 +40,10 @@ export async function getPackages(
     };
   } catch (error) {
     return {
-      response: '',
+      response: [],
       error: error as ParserError,
     };
   }
-}
-
-function formatRpmPackages(packages: PackageInfo[]): string[] {
-  return packages.map((packageInfo) => {
-    return `${packageInfo.name}\t${formatRpmPackageVersion(packageInfo)}\t${
-      packageInfo.size
-    }`;
-  });
 }
 
 export function formatRpmPackageVersion(packageInfo: PackageInfo): string {
@@ -78,7 +60,7 @@ export function formatRpmPackageVersion(packageInfo: PackageInfo): string {
  */
 export async function getPackagesSqlite(
   sqliteDbBuffer: Buffer,
-): Promise<IParserSqliteResponse> {
+): Promise<Response> {
   try {
     const packageInfoBlobs = await getBlobsFromPackagesTableSqliteDb(
       sqliteDbBuffer,
