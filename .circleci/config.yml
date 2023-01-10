@@ -104,7 +104,7 @@ jobs:
 workflows:
   version: 2
 
-  PR_TO_MASTER:
+  PR_TO_MAIN:
     jobs:
       - install_dev_deps:
           name: Install with devDependencies
@@ -112,7 +112,7 @@ workflows:
           filters:
             branches:
               ignore:
-                - master
+                - main
       - lint:
           name: Lint
           context: nodejs-install
@@ -121,7 +121,7 @@ workflows:
           filters:
             branches:
               ignore:
-                - master
+                - main
       - test:
           name: Test
           context: nodejs-install
@@ -130,7 +130,7 @@ workflows:
           filters:
             branches:
               ignore:
-                - master
+                - main
       - install_prod_deps:
           name: Install PROD deps
           context: nodejs-install
@@ -140,9 +140,9 @@ workflows:
           filters:
             branches:
               ignore:
-                - master
+                - main
 
-  MERGE_TO_MASTER:
+  MERGE_TO_MAIN:
     jobs:
       - install_dev_deps:
           name: Install with devDependencies
@@ -152,7 +152,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
           post-steps:
             - *slack-fail-notify
       - lint:
@@ -165,7 +165,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
           post-steps:
             - *slack-fail-notify
       - test:
@@ -178,7 +178,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
           post-steps:
             - *slack-fail-notify
       - release:
@@ -193,7 +193,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
           post-steps:
             - *slack-fail-notify
             - *slack-success-notify
