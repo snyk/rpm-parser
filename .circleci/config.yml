@@ -25,7 +25,7 @@ slack-fail-notify: &slack-fail-notify
 slack-success-notify: &slack-success-notify
   slack/notify:
     event: pass
-    channel: lumos-deployment
+    channel: lumos-deployments
     branch_pattern: main
     template: basic_success_1
 
