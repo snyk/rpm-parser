@@ -13,23 +13,24 @@ function fixturePath(path: string): string {
 }
 
 describe('Testing various RPM Berkeley databases', () => {
-  const fixturePaths = [
-    'amazonlinux2_plain',
-    'centos6_dev_tools',
-    'centos6_many',
-    'centos6_plain',
-    'centos7_dev_tools',
-    'centos7_httpd24',
-    'centos7_many',
-    'centos7_plain',
-    'centos7_python35',
-    'fedora26_many',
-    'rpm4_empty',
-    'ubi7_plain',
-    'ubi8_plain',
+  const fixtures: [string, boolean][] = [
+    ['amazonlinux2_plain', false],
+    ['centos6_dev_tools', false],
+    ['centos6_many', false],
+    ['centos6_plain', false],
+    ['centos7_dev_tools', false],
+    ['centos7_httpd24', false],
+    ['centos7_many', false],
+    ['centos7_plain', false],
+    ['centos7_python35', false],
+    ['fedora26_many', false],
+    ['rpm4_empty', false],
+    ['ubi7_plain', false],
+    ['ubi8_plain', false],
+    ['modules', true],
   ];
 
-  for (const path of fixturePaths) {
+  for (const [path, withModules] of fixtures) {
     // Create a test run for every fixture
     test(path, async () => {
       const fixture = fixturePath(`fixtures/${path}`);
@@ -50,7 +51,10 @@ describe('Testing various RPM Berkeley databases', () => {
       expect(parserOutput.rpmMetadata!.packagesSkipped).toEqual(0);
 
       const expectedEntries = expectedOutput.trim().split('\n').sort();
-      const parserEntries = formatRpmPackages(parserOutput.response).sort();
+      const parserEntries = formatRpmPackages(
+        parserOutput.response,
+        withModules,
+      ).sort();
 
       for (let j = 0; j < expectedEntries.length; j++) {
         const expectedEntry = expectedEntries[j];
@@ -78,10 +82,17 @@ describe('Testing various RPM sqlite databases', async () => {
   }
 });
 
-function formatRpmPackages(packages: PackageInfo[]): string[] {
+function formatRpmPackages(
+  packages: PackageInfo[],
+  enableModules = false,
+): string[] {
   return packages.map((packageInfo) => {
-    return `${packageInfo.name}\t${formatRpmPackageVersion(packageInfo)}\t${
-      packageInfo.size
-    }`;
+    let prefix = '';
+    if (enableModules) {
+      prefix = (packageInfo.module ? packageInfo.module : '(none)') + '\t';
+    }
+    return `${prefix}${packageInfo.name}\t${formatRpmPackageVersion(
+      packageInfo,
+    )}\t${packageInfo.size}`;
   });
 }
