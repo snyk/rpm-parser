@@ -111,7 +111,7 @@ workflows:
           name: Scan repository for secrets
           context:
             - snyk-bot-slack
-          channel: container-integration-alerts
+          channel: lumos-alerts
           filters:
             branches:
               ignore:
