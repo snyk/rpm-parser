@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   slack: circleci/slack@4
+  prodsec: snyk/prodsec-orb@1.0
 
 defaults: &defaults
   resource_class: small
@@ -106,6 +107,16 @@ workflows:
 
   PR_TO_MAIN:
     jobs:
+      - prodsec/secrets-scan:
+          name: Scan repository for secrets
+          context:
+            - snyk-bot-slack
+          channel: lumos-alerts
+          filters:
+            branches:
+              ignore:
+                - main
+
       - install_dev_deps:
           name: Install with devDependencies
           context: nodejs-install
