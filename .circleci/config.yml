@@ -3,17 +3,18 @@ version: 2.1
 orbs:
   slack: circleci/slack@4
   prodsec: snyk/prodsec-orb@1.0
+  snyk: snyk/snyk@1
 
 defaults: &defaults
   resource_class: small
   docker:
-    - image: node:12
+    - image: cimg/node:18.15
   working_directory: ~/rpm-parser
 
 release_defaults: &release_defaults
   resource_class: small
   docker:
-    - image: node:14
+    - image: cimg/node:18.15
   working_directory: ~/rpm-parser
 
 slack-fail-notify: &slack-fail-notify
@@ -77,6 +78,26 @@ jobs:
       - run:
           name: Lint
           command: npm run lint
+  scan_code:
+    <<: *defaults
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/rpm-parser
+      - snyk/scan:
+          command: code test
+          fail-on-issues: true
+          severity-threshold: high
+          monitor-on-build: false
+  scan_deps:
+    <<: *defaults
+    steps:
+      - checkout
+      - install_deps
+      - snyk/scan:
+          fail-on-issues: true
+          severity-threshold: high
+          monitor-on-build: false
 
   test:
     <<: *defaults
@@ -133,6 +154,23 @@ workflows:
             branches:
               ignore:
                 - main
+      - scan_code:
+          name: Scan Code
+          context:
+            - team-lumos
+          filters:
+            branches:
+              ignore:
+                - main
+      - scan_deps:
+          name: Scan Dependencies
+          context:
+            - team-lumos
+          filters:
+            branches:
+              ignore:
+                - main
+
       - test:
           name: Test
           context: nodejs-install
@@ -179,6 +217,24 @@ workflows:
                 - main
           post-steps:
             - *slack-fail-notify
+
+      - scan_code:
+          name: Scan Code
+          context:
+            - team-lumos
+          filters:
+            branches:
+              only:
+                - main
+      - scan_deps:
+          name: Scan Dependencies
+          context:
+            - team-lumos
+          filters:
+            branches:
+              only:
+                - main
+
       - test:
           name: Test
           context: 
@@ -201,6 +257,8 @@ workflows:
             - Install with devDependencies
             - Test
             - Lint
+            - Scan Dependencies
+            - Scan Code
           filters:
             branches:
               only:
