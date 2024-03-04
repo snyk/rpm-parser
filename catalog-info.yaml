@@ -4,8 +4,8 @@ metadata:
   name: rpm-parser
   annotations:
     github.com/project-slug: snyk/rpm-parser
-    github.com/team-slug: snyk/lumos
+    github.com/team-slug: snyk/unify
 spec:
   type: external-library
   lifecycle: "-"
-  owner: lumos
+  owner: unify

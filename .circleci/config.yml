@@ -20,14 +20,14 @@ release_defaults: &release_defaults
 slack-fail-notify: &slack-fail-notify
   slack/notify:
     event: fail
-    channel: lumos-alerts
+    channel: team-unify-pipeline-info
     branch_pattern: main
     template: basic_fail_1
 
 slack-success-notify: &slack-success-notify
   slack/notify:
     event: pass
-    channel: lumos-deployments
+    channel: team-unify-pipeline-info
     branch_pattern: main
     template: basic_success_1
 
@@ -132,7 +132,7 @@ workflows:
           name: Scan repository for secrets
           context:
             - snyk-bot-slack
-          channel: lumos-alerts
+          channel: team-unify-pipeline-info
           filters:
             branches:
               ignore:
@@ -157,7 +157,7 @@ workflows:
       - scan_code:
           name: Scan Code
           context:
-            - team-lumos
+            - team-unify
           filters:
             branches:
               ignore:
@@ -165,7 +165,7 @@ workflows:
       - scan_deps:
           name: Scan Dependencies
           context:
-            - team-lumos
+            - team-unify
           filters:
             branches:
               ignore:
@@ -221,7 +221,7 @@ workflows:
       - scan_code:
           name: Scan Code
           context:
-            - team-lumos
+            - team-unify
           filters:
             branches:
               only:
@@ -229,7 +229,7 @@ workflows:
       - scan_deps:
           name: Scan Dependencies
           context:
-            - team-lumos
+            - team-unify
           filters:
             branches:
               only:
