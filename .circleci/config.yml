@@ -222,6 +222,7 @@ workflows:
           name: Scan Code
           context:
             - team-unify
+            - snyk-token-team-link
           filters:
             branches:
               only:
@@ -230,6 +231,7 @@ workflows:
           name: Scan Dependencies
           context:
             - team-unify
+            - snyk-token-team-link
           filters:
             branches:
               only:
