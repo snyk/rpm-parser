@@ -65,7 +65,7 @@ describe('Testing various RPM Berkeley databases', () => {
   }
 });
 
-describe('Testing various RPM sqlite databases', async () => {
+describe('Testing various RPM sqlite databases', () => {
   const fixtureDir: string = fixturePath('fixtures/rpm-4.16');
   const outputDir: string = fixturePath('outputs/rpm-4.16');
 
