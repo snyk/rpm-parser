@@ -62,9 +62,8 @@ export async function getPackagesSqlite(
   sqliteDbBuffer: Buffer,
 ): Promise<Response> {
   try {
-    const packageInfoBlobs = await getBlobsFromPackagesTableSqliteDb(
-      sqliteDbBuffer,
-    );
+    const packageInfoBlobs =
+      await getBlobsFromPackagesTableSqliteDb(sqliteDbBuffer);
     const packages = await Promise.all(
       packageInfoBlobs.map((data: Buffer) => bufferToPackageInfo(data)),
     );

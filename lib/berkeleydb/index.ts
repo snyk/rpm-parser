@@ -8,14 +8,7 @@ import { ParserError } from '../types';
 export { bufferToHashIndexValues, bufferToHashValueContent };
 
 const validPageSizes: ReadonlyArray<number> = [
-  512,
-  1024,
-  2048,
-  4096,
-  8192,
-  16384,
-  32768,
-  65536,
+  512, 1024, 2048, 4096, 8192, 16384, 32768, 65536,
 ];
 
 /**
