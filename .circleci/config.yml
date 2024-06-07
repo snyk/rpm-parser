@@ -2,8 +2,7 @@ version: 2.1
 
 orbs:
   slack: circleci/slack@4
-  prodsec: snyk/prodsec-orb@1.0
-  snyk: snyk/snyk@1
+  prodsec: snyk/prodsec-orb@1
 
 defaults: &defaults
   resource_class: small
@@ -57,6 +56,17 @@ commands:
             - node_modules/
 
 jobs:
+  security-scans:
+    <<: *defaults
+    steps:
+      - checkout
+      - install_deps
+      - attach_workspace:
+          at: ~/rpm-parser
+      - prodsec/security_scans:
+          mode: auto
+          iac-scan: disabled
+
   install_dev_deps:
     <<: *defaults
     environment:
@@ -78,26 +88,6 @@ jobs:
       - run:
           name: Lint
           command: npm run lint
-  scan_code:
-    <<: *defaults
-    steps:
-      - checkout
-      - attach_workspace:
-          at: ~/rpm-parser
-      - snyk/scan:
-          command: code test
-          fail-on-issues: true
-          severity-threshold: high
-          monitor-on-build: false
-  scan_deps:
-    <<: *defaults
-    steps:
-      - checkout
-      - install_deps
-      - snyk/scan:
-          fail-on-issues: true
-          severity-threshold: high
-          monitor-on-build: false
 
   test:
     <<: *defaults
@@ -132,7 +122,7 @@ workflows:
           name: Scan repository for secrets
           context:
             - snyk-bot-slack
-          channel: team-unify-pipeline-info
+          channel: team-unify-alerts
           filters:
             branches:
               ignore:
@@ -154,18 +144,10 @@ workflows:
             branches:
               ignore:
                 - main
-      - scan_code:
-          name: Scan Code
-          context:
-            - team-unify
-          filters:
-            branches:
-              ignore:
-                - main
-      - scan_deps:
-          name: Scan Dependencies
-          context:
-            - team-unify
+
+      - security-scans:
+          name: Security Scans
+          context: analysis_unify
           filters:
             branches:
               ignore:
@@ -195,7 +177,7 @@ workflows:
     jobs:
       - install_dev_deps:
           name: Install with devDependencies
-          context: 
+          context:
             - nodejs-install
             - snyk-bot-slack
           filters:
@@ -206,7 +188,7 @@ workflows:
             - *slack-fail-notify
       - lint:
           name: Lint
-          context: 
+          context:
             - nodejs-install
             - snyk-bot-slack
           requires:
@@ -218,20 +200,9 @@ workflows:
           post-steps:
             - *slack-fail-notify
 
-      - scan_code:
-          name: Scan Code
-          context:
-            - team-unify
-            - snyk-token-team-link
-          filters:
-            branches:
-              only:
-                - main
-      - scan_deps:
-          name: Scan Dependencies
-          context:
-            - team-unify
-            - snyk-token-team-link
+      - security-scans:
+          name: Security Scans
+          context: analysis_unify
           filters:
             branches:
               only:
@@ -239,7 +210,7 @@ workflows:
 
       - test:
           name: Test
-          context: 
+          context:
             - nodejs-install
             - snyk-bot-slack
           requires:
@@ -252,15 +223,14 @@ workflows:
             - *slack-fail-notify
       - release:
           name: Release to GitHub
-          context: 
+          context:
             - nodejs-lib-release
             - snyk-bot-slack
           requires:
             - Install with devDependencies
             - Test
             - Lint
-            - Scan Dependencies
-            - Scan Code
+            - Security Scans
           filters:
             branches:
               only:
