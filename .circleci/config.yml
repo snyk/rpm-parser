@@ -19,14 +19,14 @@ release_defaults: &release_defaults
 slack-fail-notify: &slack-fail-notify
   slack/notify:
     event: fail
-    channel: team-unify-pipeline-info
+    channel: team-container-pipeline-info
     branch_pattern: main
     template: basic_fail_1
 
 slack-success-notify: &slack-success-notify
   slack/notify:
     event: pass
-    channel: team-unify-pipeline-info
+    channel: team-container-pipeline-info
     branch_pattern: main
     template: basic_success_1
 
