@@ -9,6 +9,7 @@ describe('getPackageInfo()', () => {
     const version = '1.2.3\0';
     const module = 'perl-libwww-perl:6.34:8030020200716155257:b967a9a2\0';
     const size = [0x00, 0x00, 0x00, 0x01]; // 1 in Big Endian
+    const sourceRPM = 'package-1.2.3-rel.src.rpm\0';
 
     const nameEntry = {
       info: {
@@ -60,6 +61,16 @@ describe('getPackageInfo()', () => {
       data: Buffer.from(module),
       length: 0,
     };
+    const sourceRPMEntry = {
+      info: {
+        tag: RpmTag.SOURCERPM,
+        type: RpmType.STRING,
+        count: 0,
+        offset: 0,
+      },
+      data: Buffer.from(sourceRPM),
+      length: 0,
+    };
 
     const packageEntries: IndexEntry[] = [
       nameEntry,
@@ -67,6 +78,7 @@ describe('getPackageInfo()', () => {
       versionEntry,
       sizeEntry,
       moduleEntry,
+      sourceRPMEntry,
     ];
 
     await expect(getPackageInfo(packageEntries)).resolves.toEqual({
@@ -75,6 +87,7 @@ describe('getPackageInfo()', () => {
       version: '1.2.3',
       module: 'perl-libwww-perl:6.34:8030020200716155257:b967a9a2',
       size: 1,
+      sourceRPM: 'package-1.2.3-rel.src.rpm',
     });
   });
 

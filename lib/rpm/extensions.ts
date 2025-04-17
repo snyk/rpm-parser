@@ -78,6 +78,16 @@ export async function getPackageInfo(
         packageInfo.module = extractString(entry.data);
         break;
 
+      case RpmTag.SOURCERPM:
+        if (entry.info.type !== RpmType.STRING) {
+          throw new ParserError('Unexpected type for sourceRPM tag', {
+            type: entry.info.type,
+          });
+        }
+
+        packageInfo.sourceRPM = extractString(entry.data);
+        break;
+
       default:
         break;
     }
