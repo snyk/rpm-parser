@@ -6,9 +6,12 @@ export interface Response {
   error?: ParserError;
 }
 
+export type DbType = 'BDB' | 'NDB' | 'SQLite' | 'Unknown';
+
 export interface RpmMetadata {
   packagesProcessed: number;
   packagesSkipped: number;
+  dbType?: DbType; // Add optional database type
 }
 
 export class ParserError extends Error {
