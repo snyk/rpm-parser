@@ -1,9 +1,12 @@
 import { bufferToHashDbValues } from './berkeleydb';
 import { bufferToPackageInfo } from './rpm';
+import { bufferToNdbValues } from './ndb'; // Import the NDB parser
 import { PackageInfo } from './rpm/types';
 import { Response, ParserError } from './types';
 import { default as initSqlJs } from 'sql.js';
+import * as Debug from 'debug';
 
+const debug = Debug('snyk');
 /**
  * Get a list of packages given a Buffer that contains an RPM database in BerkeleyDB format.
  * The database is inspected as best-effort, returning all valid/readable entries.
@@ -84,4 +87,50 @@ async function getBlobsFromPackagesTableSqliteDb(
   const packagesInfoBlobs = dbContent[0].values;
   db.close();
   return packagesInfoBlobs.map((data) => Buffer.from(data[0] as Uint8Array));
+}
+
+/**
+ * Get a list of packages given a Buffer containing an NDB RPM packages DB.
+ * The database is inspected as best-effort, returning all valid/readable entries.
+ * @param ndbDbBuffer A Buffer containing an RPM NDB Packages DB.
+ */
+export async function getPackagesNdb(ndbDbBuffer: Buffer): Promise<Response> {
+  try {
+    const dbValues = await bufferToNdbValues(ndbDbBuffer);
+
+    let packagesSkipped = 0;
+    let packagesProcessed = 0;
+    const rpmPackageInfos = new Array<PackageInfo>();
+
+    for (const data of dbValues) {
+      try {
+        const packageInfo = await bufferToPackageInfo(data);
+        if (packageInfo !== undefined) {
+          rpmPackageInfos.push(packageInfo);
+          packagesProcessed += 1;
+        } else {
+          packagesSkipped += 1;
+        }
+      } catch (error) {
+        debug(
+          `Skipping NDB package entry due to parsing error: ${(error as ParserError)?.message || String(error)}`,
+        );
+        packagesSkipped += 1;
+      }
+    }
+
+    return {
+      response: rpmPackageInfos,
+      rpmMetadata: {
+        packagesProcessed,
+        packagesSkipped,
+        dbType: 'NDB',
+      },
+    };
+  } catch (error) {
+    return {
+      response: [],
+      error: error as ParserError,
+    };
+  }
 }
