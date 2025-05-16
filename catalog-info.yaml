@@ -4,8 +4,8 @@ metadata:
   name: rpm-parser
   annotations:
     github.com/project-slug: snyk/rpm-parser
-    github.com/team-slug: snyk/unify
+    github.com/team-slug: snyk/infrasec_container
 spec:
   type: external-library
   lifecycle: "-"
-  owner: unify
+  owner: infrasec_container
