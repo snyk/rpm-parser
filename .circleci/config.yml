@@ -1,20 +1,14 @@
 version: 2.1
 
 orbs:
-  slack: circleci/slack@4
+  slack: circleci/slack@5
   prodsec: snyk/prodsec-orb@1
+  node: circleci/node@7
 
 defaults: &defaults
   resource_class: small
   docker:
-    - image: cimg/node:18.15
-  working_directory: ~/rpm-parser
-
-release_defaults: &release_defaults
-  resource_class: small
-  docker:
-    - image: cimg/node:18.15
-  working_directory: ~/rpm-parser
+    - image: cimg/node:20.19
 
 slack-fail-notify: &slack-fail-notify
   slack/notify:
@@ -23,46 +17,27 @@ slack-fail-notify: &slack-fail-notify
     branch_pattern: main
     template: basic_fail_1
 
-slack-success-notify: &slack-success-notify
-  slack/notify:
-    event: pass
-    channel: team-container-pipeline-info
-    branch_pattern: main
-    template: basic_success_1
-
-
 commands:
-  install_deps:
-    description: Install dependencies
+  setup_snyk_npm_user:
+    steps:
+      - run:
+          name: Setup NPM Credentials
+          command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
+
+  checkout_and_install:
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - v1-npm-cache-{{ checksum "package.json" }}
-            - v1-npm-cache-
-      - run:
-          name: Use snyk-main npmjs user
-          command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
-      - run:
-          name: Install dependencies
-          command: npm install
-      - save_cache:
-          key: v1-npm-cache-{{ checksum "package.json" }}
-          paths:
-            - ~/.npm
-      - persist_to_workspace:
-          root: .
-          paths:
-            - node_modules/
+      - setup_snyk_npm_user
+      - node/install-packages:
+          cache-only-lockfile: false
+          cache-path: ./node_modules
+          include-branch-in-cache-key: false
 
 jobs:
   security-scans:
     <<: *defaults
     steps:
-      - checkout
-      - install_deps
-      - attach_workspace:
-          at: ~/rpm-parser
+      - checkout_and_install
       - prodsec/security_scans:
           mode: auto
           iac-scan: disabled
@@ -72,19 +47,17 @@ jobs:
     environment:
       NODE_ENV: development
     steps:
-      - install_deps
+      - checkout_and_install
 
   install_prod_deps:
     <<: *defaults
     steps:
-      - install_deps
+      - checkout_and_install
 
   lint:
     <<: *defaults
     steps:
-      - checkout
-      - attach_workspace:
-          at: ~/rpm-parser
+      - checkout_and_install
       - run:
           name: Lint
           command: npm run lint
@@ -92,20 +65,15 @@ jobs:
   test:
     <<: *defaults
     steps:
-      - checkout
-      - attach_workspace:
-          at: ~/rpm-parser
+      - checkout_and_install
       - run:
           name: Run tests
           command: npm run test
 
   release:
-    <<: *release_defaults
+    <<: *defaults
     steps:
-      - checkout
-      - run:
-          name: Install dependencies
-          command: npm install
+      - checkout_and_install
       - run:
           name: Build
           command: npm run build
@@ -114,7 +82,6 @@ jobs:
           command: npx semantic-release@19
 
 workflows:
-  version: 2
 
   PR_TO_MAIN:
     jobs:
@@ -237,4 +204,3 @@ workflows:
                 - main
           post-steps:
             - *slack-fail-notify
-            - *slack-success-notify
