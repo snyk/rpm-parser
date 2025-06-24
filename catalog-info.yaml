@@ -8,4 +8,4 @@ metadata:
 spec:
   type: external-library
   lifecycle: "-"
-  owner: infrasec_container
+  owner: container
