@@ -50,7 +50,7 @@ export async function getPackages(data: Buffer): Promise<Response> {
 }
 
 export function formatRpmPackageVersion(packageInfo: PackageInfo): string {
-  if (packageInfo.epoch === undefined || packageInfo.epoch === 0) {
+  if (packageInfo.epoch === undefined) {
     return `${packageInfo.version}-${packageInfo.release}`;
   }
   return `${packageInfo.epoch}:${packageInfo.version}-${packageInfo.release}`;

@@ -23,7 +23,7 @@ describe('version parsing', () => {
       size: 1,
     };
 
-    expect(formatRpmPackageVersion(rpmPackage)).toBe('1.2.3-1');
+    expect(formatRpmPackageVersion(rpmPackage)).toBe('0:1.2.3-1');
   });
 
   it('parses version with epoch and release', () => {
