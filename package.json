@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/snyk/rpm-parser#readme",
   "dependencies": {
-    "debug": "^4.3.7",
+    "debug": "^4.4.3",
     "event-loop-spinner": "^2.2.0",
     "sql.js": "^1.10.2"
   },
