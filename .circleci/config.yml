@@ -82,7 +82,6 @@ jobs:
           command: npx semantic-release@19
 
 workflows:
-
   PR_TO_MAIN:
     jobs:
       - prodsec/secrets-scan:
@@ -114,7 +113,9 @@ workflows:
 
       - security-scans:
           name: Security Scans
-          context: infrasec_container
+          context:
+            - infrasec_container
+            - prodsec-orb-runtime
           filters:
             branches:
               ignore:
@@ -169,7 +170,9 @@ workflows:
 
       - security-scans:
           name: Security Scans
-          context: infrasec_container
+          context:
+            - infrasec_container
+            - prodsec-orb-runtime
           filters:
             branches:
               only:
