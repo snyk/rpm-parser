@@ -8,7 +8,7 @@ orbs:
 defaults: &defaults
   resource_class: small
   docker:
-    - image: cimg/node:20.19
+    - image: cimg/node:22.14
 
 slack-fail-notify: &slack-fail-notify
   slack/notify:
@@ -79,7 +79,9 @@ jobs:
           command: npm run build
       - run:
           name: Release on GitHub
-          command: npx semantic-release@19
+          command: |
+            export NPM_ID_TOKEN=$(circleci run oidc get --claims '{"aud": "npm:registry.npmjs.org"}')
+            npx semantic-release
 
 workflows:
   PR_TO_MAIN:
@@ -194,7 +196,8 @@ workflows:
       - release:
           name: Release to GitHub
           context:
-            - nodejs-lib-release
+            - nodejs-install
+            - github-release
             - snyk-bot-slack
           requires:
             - Install with devDependencies
