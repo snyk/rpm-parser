@@ -73,11 +73,7 @@ jobs:
   release:
     <<: *defaults
     steps:
-      - checkout
-      - node/install-packages:
-          cache-only-lockfile: false
-          cache-path: ./node_modules
-          include-branch-in-cache-key: false
+      - checkout_and_install
       - run:
           name: Build
           command: npm run build
