@@ -13,7 +13,7 @@ defaults: &defaults
 slack-fail-notify: &slack-fail-notify
   slack/notify:
     event: fail
-    channel: team-container-pipeline-info
+    channel: team-sca-scanners-alerts
     branch_pattern: main
     template: basic_fail_1
 
