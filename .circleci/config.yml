@@ -13,7 +13,7 @@ defaults: &defaults
 slack-fail-notify: &slack-fail-notify
   slack/notify:
     event: fail
-    channel: team-container-pipeline-info
+    channel: team-sca-scanners-alerts
     branch_pattern: main
     template: basic_fail_1
 
@@ -91,7 +91,7 @@ workflows:
           context:
             - snyk-bot-slack
             - prodsec-orb-runtime
-          channel: snyk-vuln-alerts-container
+          channel: snyk-vuln-alerts-sca
           filters:
             branches:
               ignore:
