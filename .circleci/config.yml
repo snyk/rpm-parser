@@ -1,7 +1,6 @@
 version: 2.1
 
 orbs:
-  slack: circleci/slack@5
   prodsec: snyk/prodsec-orb@1
   node: circleci/node@7
 
@@ -9,13 +8,6 @@ defaults: &defaults
   resource_class: small
   docker:
     - image: cimg/node:22.14
-
-slack-fail-notify: &slack-fail-notify
-  slack/notify:
-    event: fail
-    channel: team-sca-scanners-alerts
-    branch_pattern: main
-    template: basic_fail_1
 
 commands:
   setup_snyk_npm_user:
@@ -117,7 +109,7 @@ workflows:
       - security-scans:
           name: Security Scans
           context:
-            - infrasec_container
+            - engines_sca-scanners
             - prodsec-orb-runtime
           filters:
             branches:
@@ -155,8 +147,6 @@ workflows:
             branches:
               only:
                 - main
-          post-steps:
-            - *slack-fail-notify
       - lint:
           name: Lint
           context:
@@ -168,13 +158,11 @@ workflows:
             branches:
               only:
                 - main
-          post-steps:
-            - *slack-fail-notify
 
       - security-scans:
           name: Security Scans
           context:
-            - infrasec_container
+            - engines_sca-scanners
             - prodsec-orb-runtime
           filters:
             branches:
@@ -192,8 +180,6 @@ workflows:
             branches:
               only:
                 - main
-          post-steps:
-            - *slack-fail-notify
       - release:
           name: Release to GitHub
           context:
@@ -209,5 +195,3 @@ workflows:
             branches:
               only:
                 - main
-          post-steps:
-            - *slack-fail-notify
