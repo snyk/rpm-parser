@@ -34,7 +34,7 @@ export function bufferToHashValueContent(
   let bytesWritten = 0;
 
   // Traverse the pages, using "nextPageNumber" in the page metadata to see if we've reached the end.
-  for (let currentPageNumber = startPageNumber; currentPageNumber !== 0; ) {
+  for (let currentPageNumber = startPageNumber; currentPageNumber !== 0;) {
     const pageStart = pageSizeBytes * currentPageNumber;
     const pageEnd = pageStart + pageSizeBytes;
 
