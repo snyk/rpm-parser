@@ -19,7 +19,7 @@
   "author": "snyk.io",
   "license": "Apache-2.0",
   "engines": {
-    "node": ">=20.19"
+    "node": ">=22"
   },
   "homepage": "https://github.com/snyk/rpm-parser#readme",
   "dependencies": {
@@ -30,7 +30,7 @@
   "devDependencies": {
     "@types/debug": "^4.1.13",
     "@types/jest": "29.5.14",
-    "@types/node": "^20.19.43",
+    "@types/node": "^22",
     "@types/sql.js": "^1.4.11",
     "@typescript-eslint/eslint-plugin": "7.18.0",
     "@typescript-eslint/parser": "7.18.0",
