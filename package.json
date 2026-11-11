@@ -39,7 +39,7 @@
     "semantic-release": "^25.0.9",
     "ts-jest": "29.4.15",
     "ts-node": "10.9.2",
-    "tsc-watch": "6.3.1",
+    "tsc-watch": "7.2.1",
     "typescript": "5.9.3"
   },
   "release": {
