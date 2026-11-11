@@ -9,7 +9,7 @@ orbs:
 defaults: &defaults
   resource_class: small
   docker:
-    - image: cimg/node:22.14
+    - image: cimg/node:24  # npm 11+ (Node 24) is needed for OIDC trusted publishing
 
 commands:
   setup_snyk_npm_user:
@@ -58,6 +58,8 @@ jobs:
 
   test:
     <<: *defaults
+    docker:
+      - image: cimg/node:22  # tests run on the oldest supported Node.js
     steps:
       - checkout_and_install
       - run:
