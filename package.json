@@ -24,8 +24,8 @@
   "homepage": "https://github.com/snyk/rpm-parser#readme",
   "dependencies": {
     "debug": "^4.4.3",
-    "event-loop-spinner": "^2.3.3",
-    "sql.js": "^1.15.2"
+    "event-loop-spinner": "^2.3.4",
+    "sql.js": "^1.16.0"
   },
   "devDependencies": {
     "@types/debug": "^4.1.13",
